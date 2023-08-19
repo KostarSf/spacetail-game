@@ -1,5 +1,19 @@
-import { Actor, Engine, Keys, Vector, vec, PointerEvent } from "excalibur";
+import {
+  Actor,
+  Engine,
+  Keys,
+  Vector,
+  vec,
+  PointerEvent,
+  CollisionType,
+  Color,
+  PolygonCollider,
+  Polygon,
+} from "excalibur";
 import { Resources } from "../resources";
+import { Asteroid } from "./asteroid";
+
+const trianglePoints = [vec(15, 0), vec(-5, 12), vec(-5, -12)];
 
 export class Player extends Actor {
   #lastCursorPos: Vector = vec(0, 0);
@@ -9,24 +23,48 @@ export class Player extends Actor {
   constructor() {
     super({
       pos: vec(150, 150),
-      width: 100,
-      height: 100,
+      width: 32,
+      height: 32,
+      color: Color.Orange,
+      collider: new PolygonCollider({ points: trianglePoints }),
+      collisionType: CollisionType.Passive,
     });
   }
 
   onInitialize(engine: Engine): void {
+    // this.graphics.use(new Polygon({points: trianglePoints}))
     this.graphics.use(Resources.Ship.toSprite());
     engine.input.pointers.on("move", (e) => this.#onPointerMove(e));
+    this.on("precollision", (event) => {
+      // TODO - сейчас сила отбрасывания вычисляется только из текущей скорости
+      // объекта. Соответственно, если он стоит, его ничего не может сдвинуть.
+      // Нужно складывать (или вычитать) скорости обоих тел, с учетом массы,
+      // и уже этот результат применять на объект
+      // TODO - Дублирование кода коллизии.
+      if (event.other instanceof Asteroid) {
+        const asteroid = event.other
+
+        const direction = this.pos.sub(asteroid.pos)
+        const speed = this.vel.distance();
+        const force = direction.scale(speed * 0.008);
+
+        this.vel = this.vel.add(force);
+
+        asteroid.vel = asteroid.vel.add(force.scale(-1 / asteroid.getMass()));
+      }
+    });
   }
 
   #onPointerMove(e: PointerEvent) {
-    this.#lastCursorPos = e.worldPos;
+    this.#lastCursorPos = e.screenPos;
     this.#controllType = "mouse";
   }
 
   onPostUpdate(engine: Engine, delta: number): void {
+    const cursorWorldPos = engine.screenToWorldCoordinates(this.#lastCursorPos)
+
     if (this.#controllType === "mouse") {
-      this.lookTo(this.#lastCursorPos);
+      this.lookTo(cursorWorldPos);
     }
 
     if (engine.input.keyboard.isHeld(Keys.W)) {
@@ -64,7 +102,7 @@ export class Player extends Actor {
       );
     } else {
       const speed = this.vel.distance();
-      let velocity = vec(0, 0)
+      let velocity = vec(0, 0);
 
       if (speed > 30) {
         velocity = this.vel.scale(0.995);
@@ -72,7 +110,7 @@ export class Player extends Actor {
         velocity = this.vel.scale(0.98);
       }
 
-      this.vel = velocity
+      this.vel = velocity;
     }
 
     this.#accelerated = false;
