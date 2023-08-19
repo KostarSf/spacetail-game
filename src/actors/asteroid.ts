@@ -8,8 +8,8 @@ const asteroidSizes = {
   Small: 8,
   Medium: 12,
   Item: 12,
-  Large: 16
-}
+  Large: 16,
+};
 const asteroidMasses = {
   Small: 1,
   Medium: 5,
@@ -19,7 +19,7 @@ const asteroidMasses = {
 
 export class Asteroid extends Actor {
   #asteroidType: AsteroidType;
-  #mass: number
+  #mass: number;
 
   constructor() {
     // TODO - Сделать логику создания разных типов астероидов более красивой.
@@ -35,7 +35,7 @@ export class Asteroid extends Actor {
     });
 
     this.#asteroidType = asteroidType;
-    this.#mass = asteroidMasses[asteroidType]
+    this.#mass = asteroidMasses[asteroidType];
   }
 
   onInitialize(engine: Engine): void {
@@ -61,7 +61,9 @@ export class Asteroid extends Actor {
         const speed = this.vel.distance();
         const force = direction.scale(speed * 0.008);
 
-        this.vel = this.vel.add(force.scale(1 / this.#mass));
+        this.vel = this.vel
+          .add(force.add(asteroid.vel.scale(0.2 / this.#mass)))
+          .scale(0.9);
 
         asteroid.vel = asteroid.vel.add(force.scale(-1 / asteroid.getMass()));
       }
@@ -69,31 +71,35 @@ export class Asteroid extends Actor {
   }
 
   onPostUpdate(engine: Engine, _delta: number): void {
-    const offset = 32
+    const offset = 32;
 
-    const screenWidthOffset = engine.drawWidth + offset
-    const screenHeightOffset = engine.drawHeight + offset
-    const {x, y} = engine.worldToScreenCoordinates(this.pos)
+    const screenWidthOffset = engine.drawWidth + offset;
+    const screenHeightOffset = engine.drawHeight + offset;
+    const { x, y } = engine.worldToScreenCoordinates(this.pos);
 
     if (x < -offset) {
-      this.pos.x += screenWidthOffset
+      this.pos.x += screenWidthOffset;
     }
 
     if (x > screenWidthOffset) {
-      this.pos.x -= screenWidthOffset
+      this.pos.x -= screenWidthOffset;
     }
 
     if (y < -offset) {
-      this.pos.y += screenHeightOffset
+      this.pos.y += screenHeightOffset;
     }
 
     if (y > screenHeightOffset) {
-      this.pos.y -= screenHeightOffset
+      this.pos.y -= screenHeightOffset;
     }
   }
 
   getMass() {
-    return this.#mass
+    return this.#mass;
+  }
+
+  takeDamage() {
+    this.kill();
   }
 
   static randomSpawn(count: number) {

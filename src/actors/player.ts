@@ -4,7 +4,6 @@ import {
   Color,
   Engine,
   Keys,
-  ParticleEmitter,
   PointerEvent,
   PolygonCollider,
   Vector,
@@ -12,6 +11,7 @@ import {
 } from "excalibur";
 import { Resources } from "../resources";
 import { Asteroid } from "./asteroid";
+import { Bullet } from "./bullet";
 
 const trianglePoints = [vec(15, 0), vec(-5, 12), vec(-5, -12)];
 
@@ -19,7 +19,6 @@ export class Player extends Actor {
   #lastCursorPos: Vector = vec(0, 0);
   #controllType: "keyboard" | "mouse" = "keyboard";
   #accelerated: boolean = false;
-  #debreeEmitter: ParticleEmitter;
 
   constructor() {
     super({
@@ -29,17 +28,6 @@ export class Player extends Actor {
       color: Color.Orange,
       collider: new PolygonCollider({ points: trianglePoints }),
       collisionType: CollisionType.Passive,
-    });
-
-    this.#debreeEmitter = new ParticleEmitter({
-      minVel: 10,
-      maxVel: 30,
-      minSize: 1,
-      maxSize: 3,
-      emitRate: 30,
-      maxAngle: Math.PI * 2,
-      opacity: 0.75,
-      isEmitting: false,
     });
   }
 
@@ -54,38 +42,23 @@ export class Player extends Actor {
       // и уже этот результат применять на объект
       // TODO - Дублирование кода коллизии.
       if (event.other instanceof Asteroid) {
-        this.#debreeEmitter.isEmitting = true;
-
         const asteroid = event.other;
 
         const direction = this.pos.sub(asteroid.pos);
         const speed = this.vel.distance();
         const force = direction.scale(speed * 0.008);
 
-        this.vel = this.vel.add(force);
+        this.vel = this.vel.add(force.add(asteroid.vel.scale(0.2)));
 
         asteroid.vel = asteroid.vel.add(force.scale(-1 / asteroid.getMass()));
 
-        this.#debreeEmitter.pos = this.pos.add(direction.scale(-0.5));
+        engine.currentScene.camera.shake(4, 4, 100);
       }
     });
 
-    this.on("collisionend", (event) => {
-      this.#debreeEmitter.isEmitting = false;
+    engine.input.pointers.primary.on("down", () => {
+      engine.currentScene.add(new Bullet(this));
     });
-
-    const emitter = new ParticleEmitter({
-      minVel: 20,
-      maxVel: 60,
-      minSize: 1,
-      maxSize: 3,
-      emitRate: 50,
-      maxAngle: Math.PI * 2,
-      opacity: 0.75,
-      particleLife: 1000,
-    });
-
-    engine.currentScene.add(this.#debreeEmitter);
   }
 
   #onPointerMove(e: PointerEvent) {

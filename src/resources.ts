@@ -1,14 +1,16 @@
 import { ImageSource, Loader } from "excalibur";
-import ship from "./assets/images/ship/default.png";
-import logo from "./assets/images/logo.png";
-import asteroidSmall1 from './assets/images/asteroids/small-01.png'
-import asteroidSmall2 from './assets/images/asteroids/small-02.png'
-import asteroidMedium1 from './assets/images/asteroids/medium-01.png'
-import asteroidMedium2 from './assets/images/asteroids/medium-02.png'
-import asteroidLarge1 from './assets/images/asteroids/large-01.png'
-import asteroidLarge2 from './assets/images/asteroids/large-02.png'
 import asteroidItem1 from "./assets/images/asteroids/item-01.png";
 import asteroidItem2 from "./assets/images/asteroids/item-02.png";
+import asteroidLarge1 from "./assets/images/asteroids/large-01.png";
+import asteroidLarge2 from "./assets/images/asteroids/large-02.png";
+import asteroidMedium1 from "./assets/images/asteroids/medium-01.png";
+import asteroidMedium2 from "./assets/images/asteroids/medium-02.png";
+import asteroidSmall1 from "./assets/images/asteroids/small-01.png";
+import asteroidSmall2 from "./assets/images/asteroids/small-02.png";
+import bullet from "./assets/images/dynamics/bullet.png";
+import logo from "./assets/images/logo.png";
+import debree from "./assets/images/particles/debree.png";
+import ship from "./assets/images/ship/default.png";
 
 const Resources = {
   Ship: new ImageSource(ship),
@@ -30,6 +32,12 @@ const Resources = {
       2: new ImageSource(asteroidItem2),
     },
   },
+  Particle: {
+    Debree: new ImageSource(debree),
+  },
+  Dynamic: {
+    Bullet: new ImageSource(bullet),
+  },
 };
 
 function getRandomAsteroidImage(
@@ -42,7 +50,7 @@ function getRandomAsteroidImage(
 }
 
 class GameLoader extends Loader {
-  constructor () {
+  constructor() {
     super([
       Resources.Ship,
       Resources.Asteroid.Small[1],
@@ -53,8 +61,10 @@ class GameLoader extends Loader {
       Resources.Asteroid.Large[2],
       Resources.Asteroid.Item[1],
       Resources.Asteroid.Item[2],
+      Resources.Particle.Debree,
+      Resources.Dynamic.Bullet,
     ]);
-    this.backgroundColor = '#000'
+    this.backgroundColor = "#000";
     this.playButtonText = "Play";
     this.logo = logo;
     this.logoWidth = 256;
@@ -62,6 +72,6 @@ class GameLoader extends Loader {
   }
 }
 
-const loader = new GameLoader()
+const loader = new GameLoader();
 
-export { Resources, loader, getRandomAsteroidImage };
+export { Resources, getRandomAsteroidImage, loader };
