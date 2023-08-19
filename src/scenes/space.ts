@@ -1,6 +1,6 @@
 import { Color, Engine, Scene } from "excalibur";
-import { Player } from "../actors/player";
 import { Asteroid } from "../actors/asteroid";
+import { Player } from "../actors/player";
 
 class SpaceScene extends Scene {
   onInitialize(engine: Engine): void {
@@ -15,6 +15,7 @@ class SpaceScene extends Scene {
     });
 
     this.camera.strategy.elasticToActor(player, 0.5, 0.1);
+    this.camera.pos = player.pos;
   }
 
   static key = "spacescene";
