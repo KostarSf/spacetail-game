@@ -36,10 +36,6 @@ export class Player extends Actor {
     this.graphics.use(Resources.Ship.toSprite());
     engine.input.pointers.on("move", (e) => this.#onPointerMove(e));
     this.on("precollision", (event) => {
-      // TODO - сейчас сила отбрасывания вычисляется только из текущей скорости
-      // объекта. Соответственно, если он стоит, его ничего не может сдвинуть.
-      // Нужно складывать (или вычитать) скорости обоих тел, с учетом массы,
-      // и уже этот результат применять на объект
       // TODO - Дублирование кода коллизии.
       if (event.other instanceof Asteroid) {
         const asteroid = event.other;
@@ -57,7 +53,9 @@ export class Player extends Actor {
     });
 
     engine.input.pointers.primary.on("down", () => {
-      engine.currentScene.add(new Bullet(this));
+      engine.currentScene.add(
+        new Bullet(this, Vector.fromAngle(this.rotation).scale(16))
+      );
     });
   }
 

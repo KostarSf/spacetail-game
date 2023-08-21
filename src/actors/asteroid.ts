@@ -17,6 +17,10 @@ const asteroidMasses = {
   Large: 20,
 };
 
+// TODO - Сделать фабрику, которая будет сама делать нужные астероиды.
+// либо определенные, либо случайные
+// астероид с предметом получается с некоторым шансом из среднего астероида
+
 export class Asteroid extends Actor {
   #asteroidType: AsteroidType;
   #mass: number;

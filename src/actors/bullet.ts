@@ -19,11 +19,11 @@ export class Bullet extends Actor {
 
   static #random = new Random();
 
-  constructor(parent: Actor) {
+  constructor(parent: Actor, offset = vec(0, 0)) {
     super({
       width: 8,
       height: 6,
-      pos: parent.pos,
+      pos: parent.pos.add(offset),
       rotation: parent.rotation,
       scale: vec(1.5, 1.5),
     });
