@@ -12,10 +12,10 @@ import {
   vec,
 } from "excalibur";
 import { Resources } from "../resources";
-import { Asteroid, asteroidGroup } from "./asteroid";
+import Asteroid, { asteroidGroup } from "./Asteroid";
 
 const bulletCanCollideWith = CollisionGroup.collidesWith([asteroidGroup]);
-export class Bullet extends Actor {
+export default class Bullet extends Actor {
   #parent: Actor;
   #particles: ParticleEmitter;
 
@@ -48,7 +48,7 @@ export class Bullet extends Actor {
     });
   }
 
-  onInitialize(engine: Engine): void {
+  onInitialize(_engine: Engine): void {
     this.#setupBulletMotion();
     this.#setupSpriteAnimation();
     this.#setupBulletParticles();

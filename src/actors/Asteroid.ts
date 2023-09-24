@@ -24,7 +24,7 @@ const asteroidMasses = {
 
 export const asteroidGroup = CollisionGroupManager.create("asteroid");
 
-export class Asteroid extends CosmicBody {
+export default class Asteroid extends CosmicBody {
   #asteroidType: AsteroidType;
 
   constructor() {

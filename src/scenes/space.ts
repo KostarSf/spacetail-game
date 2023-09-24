@@ -7,8 +7,8 @@ import {
   Scene,
   vec,
 } from "excalibur";
-import { Asteroid } from "../actors/asteroid";
-import { Player } from "../actors/player";
+import Player from "../actors/Player";
+import Asteroid from "../actors/Asteroid";
 
 class SpaceScene extends Scene {
   static key = "spacescene";
