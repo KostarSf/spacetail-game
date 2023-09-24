@@ -1,5 +1,6 @@
-import { Actor, CollisionType, Color, Engine, vec } from "excalibur";
+import { CollisionGroupManager, Engine, Random, vec } from "excalibur";
 import { getRandomAsteroidImage } from "../resources";
+import CosmicBody from "./CosmicBody";
 
 type AsteroidType = "Small" | "Medium" | "Large" | "Item";
 
@@ -21,9 +22,10 @@ const asteroidMasses = {
 // либо определенные, либо случайные
 // астероид с предметом получается с некоторым шансом из среднего астероида
 
-export class Asteroid extends Actor {
+export const asteroidGroup = CollisionGroupManager.create("asteroid");
+
+export class Asteroid extends CosmicBody {
   #asteroidType: AsteroidType;
-  #mass: number;
 
   constructor() {
     // TODO - Сделать логику создания разных типов астероидов более красивой.
@@ -32,46 +34,28 @@ export class Asteroid extends Actor {
     const asteroidType =
       asteroidTypes[Math.floor(Math.random() * asteroidTypes.length)];
 
-    super({
+    const random = new Random();
+
+    super(asteroidMasses[asteroidType], {
       radius: asteroidSizes[asteroidType],
-      color: Color.Chartreuse,
-      collisionType: CollisionType.Passive,
+      vel: vec(random.floating(-10, 10), random.floating(-10, 10)),
+      collisionGroup: asteroidGroup,
     });
 
     this.#asteroidType = asteroidType;
-    this.#mass = asteroidMasses[asteroidType];
   }
 
-  onInitialize(engine: Engine): void {
+  onInitialize(_engine: Engine): void {
+    super.onInitialize(_engine);
+
     this.graphics.use(getRandomAsteroidImage(this.#asteroidType).toSprite());
 
     const spawnPoint = vec(
-      Math.random() * engine.drawWidth,
-      Math.random() * engine.drawHeight
+      Math.random() * _engine.drawWidth,
+      Math.random() * _engine.drawHeight
     );
 
     this.pos = spawnPoint;
-
-    this.on("precollision", (event) => {
-      // TODO - сейчас сила отбрасывания вычисляется только из текущей скорости
-      // объекта. Соответственно, если он стоит, его ничего не может сдвинуть.
-      // Нужно складывать (или вычитать) скорости обоих тел, с учетом массы,
-      // и уже этот результат применять на объект
-      // TODO - Дублирование кода коллизии.
-      if (event.other instanceof Asteroid) {
-        const asteroid = event.other;
-
-        const direction = this.pos.sub(asteroid.pos);
-        const speed = this.vel.distance();
-        const force = direction.scale(speed * 0.008);
-
-        this.vel = this.vel
-          .add(force.add(asteroid.vel.scale(0.2 / this.#mass)))
-          .scale(0.9);
-
-        asteroid.vel = asteroid.vel.add(force.scale(-1 / asteroid.getMass()));
-      }
-    });
   }
 
   onPostUpdate(engine: Engine, _delta: number): void {
@@ -96,10 +80,6 @@ export class Asteroid extends Actor {
     if (y > screenHeightOffset) {
       this.pos.y -= screenHeightOffset;
     }
-  }
-
-  getMass() {
-    return this.#mass;
   }
 
   takeDamage() {

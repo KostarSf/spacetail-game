@@ -1,6 +1,5 @@
 import {
-  Actor,
-  CollisionType,
+  CollisionGroupManager,
   Color,
   Engine,
   Keys,
@@ -10,50 +9,39 @@ import {
   vec,
 } from "excalibur";
 import { Resources } from "../resources";
-import { Asteroid } from "./asteroid";
+import CosmicBody from "./CosmicBody";
 import { Bullet } from "./bullet";
 
 const trianglePoints = [vec(15, 0), vec(-5, 12), vec(-5, -12)];
 
-export class Player extends Actor {
+export class Player extends CosmicBody {
   #lastCursorPos: Vector = vec(0, 0);
   #controllType: "keyboard" | "mouse" = "keyboard";
   #accelerated: boolean = false;
 
   constructor() {
-    super({
+    super(10, {
       pos: vec(150, 150),
       width: 32,
       height: 32,
       color: Color.Orange,
       collider: new PolygonCollider({ points: trianglePoints }),
-      collisionType: CollisionType.Passive,
     });
   }
 
-  onInitialize(engine: Engine): void {
+  onInitialize(_engine: Engine): void {
+    super.onInitialize(_engine);
+
     // this.graphics.use(new Polygon({points: trianglePoints}))
     this.graphics.use(Resources.Ship.toSprite());
-    engine.input.pointers.on("move", (e) => this.#onPointerMove(e));
-    this.on("precollision", (event) => {
-      // TODO - Дублирование кода коллизии.
-      if (event.other instanceof Asteroid) {
-        const asteroid = event.other;
+    _engine.input.pointers.on("move", (e) => this.#onPointerMove(e));
 
-        const direction = this.pos.sub(asteroid.pos);
-        const speed = this.vel.distance();
-        const force = direction.scale(speed * 0.008);
-
-        this.vel = this.vel.add(force.add(asteroid.vel.scale(0.2)));
-
-        asteroid.vel = asteroid.vel.add(force.scale(-1 / asteroid.getMass()));
-
-        engine.currentScene.camera.shake(4, 4, 100);
-      }
+    this.on("precollision", () => {
+      _engine.currentScene.camera.shake(4, 4, 100);
     });
 
-    engine.input.pointers.primary.on("down", () => {
-      engine.currentScene.add(
+    _engine.input.pointers.primary.on("down", () => {
+      _engine.currentScene.add(
         new Bullet(this, Vector.fromAngle(this.rotation).scale(16))
       );
     });

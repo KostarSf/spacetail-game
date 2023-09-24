@@ -1,6 +1,7 @@
 import {
   Actor,
   Animation,
+  CollisionGroup,
   EmitterType,
   Engine,
   ParticleEmitter,
@@ -11,8 +12,9 @@ import {
   vec,
 } from "excalibur";
 import { Resources } from "../resources";
-import { Asteroid } from "./asteroid";
+import { Asteroid, asteroidGroup } from "./asteroid";
 
+const bulletCanCollideWith = CollisionGroup.collidesWith([asteroidGroup]);
 export class Bullet extends Actor {
   #parent: Actor;
   #particles: ParticleEmitter;
@@ -26,6 +28,7 @@ export class Bullet extends Actor {
       pos: parent.pos.add(offset),
       rotation: parent.rotation,
       scale: vec(1.5, 1.5),
+      collisionGroup: bulletCanCollideWith,
     });
 
     this.#parent = parent;
