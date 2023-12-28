@@ -47,6 +47,7 @@ class GameLoader extends Loader {
       Resources.Particle.Debree,
       Resources.Dynamic.Bullet,
     ]);
+
     this.backgroundColor = "#000";
     this.playButtonText = "Play";
     this.logo = "/assets/images/logo.png";

@@ -16,8 +16,9 @@ class Game extends Engine {
     this.add(SpaceScene.key, new SpaceScene());
     this.goToScene(SpaceScene.key);
     this.start(loader);
+
+    return this;
   }
 }
 
-export const game = new Game();
-game.initialize();
+export const game = new Game().initialize();

@@ -39,7 +39,7 @@ export default class Asteroid extends CosmicBody {
     super(asteroidMasses[asteroidType], {
       radius: asteroidSizes[asteroidType],
       vel: vec(random.floating(-10, 10), random.floating(-10, 10)),
-      collisionGroup: asteroidGroup,
+      // collisionGroup: asteroidGroup,
     });
 
     this.#asteroidType = asteroidType;
