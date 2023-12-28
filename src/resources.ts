@@ -1,72 +1,55 @@
 import { ImageSource, Loader } from "excalibur";
-import asteroidItem1 from "./assets/images/asteroids/item-01.png";
-import asteroidItem2 from "./assets/images/asteroids/item-02.png";
-import asteroidLarge1 from "./assets/images/asteroids/large-01.png";
-import asteroidLarge2 from "./assets/images/asteroids/large-02.png";
-import asteroidMedium1 from "./assets/images/asteroids/medium-01.png";
-import asteroidMedium2 from "./assets/images/asteroids/medium-02.png";
-import asteroidSmall1 from "./assets/images/asteroids/small-01.png";
-import asteroidSmall2 from "./assets/images/asteroids/small-02.png";
-import bullet from "./assets/images/dynamics/bullet.png";
-import logo from "./assets/images/logo.png";
-import debree from "./assets/images/particles/debree.png";
-import ship from "./assets/images/ship/default.png";
 
 const Resources = {
-  Ship: new ImageSource(ship),
+  Ship: new ImageSource("/assets/images/ship/default.png"),
   Asteroid: {
-    Small: {
-      1: new ImageSource(asteroidSmall1),
-      2: new ImageSource(asteroidSmall2),
-    },
-    Medium: {
-      1: new ImageSource(asteroidMedium1),
-      2: new ImageSource(asteroidMedium2),
-    },
-    Large: {
-      1: new ImageSource(asteroidLarge1),
-      2: new ImageSource(asteroidLarge2),
-    },
-    Item: {
-      1: new ImageSource(asteroidItem1),
-      2: new ImageSource(asteroidItem2),
-    },
+    Small: [
+      new ImageSource("/assets/images/asteroids/small-01.png"),
+      new ImageSource("/assets/images/asteroids/small-02.png"),
+    ],
+    Medium: [
+      new ImageSource("/assets/images/asteroids/medium-01.png"),
+      new ImageSource("/assets/images/asteroids/medium-02.png"),
+    ],
+    Large: [
+      new ImageSource("/assets/images/asteroids/large-01.png"),
+      new ImageSource("/assets/images/asteroids/large-02.png"),
+    ],
+    Item: [
+      new ImageSource("/assets/images/asteroids/item-01.png"),
+      new ImageSource("/assets/images/asteroids/item-02.png"),
+    ],
   },
   Particle: {
-    Debree: new ImageSource(debree),
+    Debree: new ImageSource("/assets/images/particles/debree.png"),
   },
   Dynamic: {
-    Bullet: new ImageSource(bullet),
+    Bullet: new ImageSource("/assets/images/dynamics/bullet.png"),
   },
 };
 
 function getRandomAsteroidImage(
-  type: "Small" | "Medium" | "Large" | "Item"
+  type: keyof typeof Resources.Asteroid
 ): ImageSource {
-  const asteroidGroup = Resources.Asteroid[type];
-  const keys = Object.keys(asteroidGroup);
-  const index = Math.floor(Math.random() * keys.length);
-  return asteroidGroup[keys[index]];
+  const group = Resources.Asteroid[type];
+  const index = Math.floor(Math.random() * group.length);
+  return group[index];
 }
 
 class GameLoader extends Loader {
   constructor() {
     super([
       Resources.Ship,
-      Resources.Asteroid.Small[1],
-      Resources.Asteroid.Small[2],
-      Resources.Asteroid.Medium[1],
-      Resources.Asteroid.Medium[2],
-      Resources.Asteroid.Large[1],
-      Resources.Asteroid.Large[2],
-      Resources.Asteroid.Item[1],
-      Resources.Asteroid.Item[2],
+      ...Resources.Asteroid.Small,
+      ...Resources.Asteroid.Medium,
+      ...Resources.Asteroid.Large,
+      ...Resources.Asteroid.Item,
       Resources.Particle.Debree,
       Resources.Dynamic.Bullet,
     ]);
     this.backgroundColor = "#000";
     this.playButtonText = "Play";
-    this.logo = logo;
+    this.logo = "/assets/images/logo.png";
     this.logoWidth = 256;
     this.logoHeight = 128;
   }

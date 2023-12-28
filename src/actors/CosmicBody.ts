@@ -1,14 +1,14 @@
 import {
   Actor,
   ActorArgs,
-  CollisionGroup,
-  CollisionGroupManager,
+  // CollisionGroup,
+  // CollisionGroupManager,
   CollisionType,
   Color,
   Engine,
 } from "excalibur";
 
-const cosmicBodyGroup = CollisionGroupManager.create("cosmicBody");
+// const cosmicBodyGroup = CollisionGroupManager.create("cosmicBody");
 // const cosmicBodyCanCollideWith = CollisionGroup.collidesWith([cosmicBodyGroup])
 
 export default class CosmicBody extends Actor {
