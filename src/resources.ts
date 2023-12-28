@@ -28,11 +28,12 @@ const Resources = {
   },
 };
 
-function getRandomAsteroidImage(
-  type: keyof typeof Resources.Asteroid
+function getAsteroidImage(
+  type: keyof typeof Resources.Asteroid,
+  index?: number
 ): ImageSource {
   const group = Resources.Asteroid[type];
-  const index = Math.floor(Math.random() * group.length);
+  index ??= Math.floor(Math.random() * group.length);
   return group[index];
 }
 
@@ -58,4 +59,4 @@ class GameLoader extends Loader {
 
 const loader = new GameLoader();
 
-export { Resources, getRandomAsteroidImage, loader };
+export { Resources, getAsteroidImage, loader };

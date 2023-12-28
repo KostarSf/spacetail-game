@@ -1,5 +1,4 @@
 import {
-  CollisionGroup,
   Color,
   Engine,
   Keys,
@@ -9,15 +8,12 @@ import {
   vec,
 } from "excalibur";
 import { Resources } from "../resources";
-import CosmicBody from "./CosmicBody";
-import Bullet from "./Bullet";
-import { asteroidGroup } from "./Asteroid";
+import { CosmicBody } from "./cosmic-body";
+import { Bullet } from "./bullet";
 
 const trianglePoints = [vec(15, 0), vec(-5, 12), vec(-5, -12)];
 
-const playerCanCollideWith = CollisionGroup.collidesWith([asteroidGroup])
-
-export default class Player extends CosmicBody {
+export class Player extends CosmicBody {
   #lastCursorPos: Vector = vec(0, 0);
   #controllType: "keyboard" | "mouse" = "keyboard";
   #accelerated: boolean = false;
@@ -29,7 +25,6 @@ export default class Player extends CosmicBody {
       height: 32,
       color: Color.Orange,
       collider: new PolygonCollider({ points: trianglePoints }),
-      collisionGroup: playerCanCollideWith,
     });
   }
 
@@ -40,8 +35,10 @@ export default class Player extends CosmicBody {
     this.graphics.use(Resources.Ship.toSprite());
     _engine.input.pointers.on("move", (e) => this.#onPointerMove(e));
 
-    this.on("precollision", () => {
-      _engine.currentScene.camera.shake(4, 4, 100);
+    this.on("precollision", (e) => {
+      if (e.other instanceof CosmicBody) {
+        _engine.currentScene.camera.shake(4, 4, 100);
+      }
     });
 
     _engine.input.pointers.primary.on("down", () => {

@@ -1,25 +1,17 @@
 import {
   Actor,
   Animation,
-  CollisionGroup,
-  EmitterType,
   Engine,
-  ParticleEmitter,
-  Random,
   SpriteSheet,
   Vector,
   range,
   vec,
 } from "excalibur";
 import { Resources } from "../resources";
-import Asteroid, { asteroidGroup } from "./Asteroid";
+import { Asteroid } from "./asteroid";
 
-const bulletCanCollideWith = CollisionGroup.collidesWith([asteroidGroup]);
-export default class Bullet extends Actor {
+export class Bullet extends Actor {
   #parent: Actor;
-  #particles: ParticleEmitter;
-
-  static #random = new Random();
 
   constructor(parent: Actor, offset = vec(0, 0)) {
     super({
@@ -28,31 +20,16 @@ export default class Bullet extends Actor {
       pos: parent.pos.add(offset),
       rotation: parent.rotation,
       scale: vec(1.5, 1.5),
-      collisionGroup: bulletCanCollideWith,
     });
 
     this.#parent = parent;
-    this.#particles = new ParticleEmitter({
-      emitterType: EmitterType.Circle,
-      radius: 5,
-      minVel: 5,
-      maxVel: 50,
-      minAngle: 0,
-      maxAngle: Math.PI * 2,
-      emitRate: 20,
-      fadeFlag: true,
-      particleLife: Bullet.#random.integer(600, 800),
-      minSize: 0.5,
-      maxSize: 1,
-      isEmitting: true,
-    });
   }
 
   onInitialize(_engine: Engine): void {
     this.#setupBulletMotion();
     this.#setupSpriteAnimation();
-    this.#setupBulletParticles();
     this.#setupCollisionEvents();
+
     this.actions.delay(5000).die();
   }
 
@@ -86,26 +63,6 @@ export default class Bullet extends Actor {
       );
   }
 
-  #setupBulletParticles() {
-    const particlesSheet = SpriteSheet.fromImageSource({
-      image: Resources.Particle.Debree,
-      grid: {
-        rows: 1,
-        columns: 2,
-        spriteWidth: 6,
-        spriteHeight: 3,
-      },
-    });
-    const particlesAnimation = Animation.fromSpriteSheet(
-      particlesSheet,
-      range(0, 1),
-      250
-    );
-
-    this.#particles.graphics.use(particlesAnimation);
-    this.addChild(this.#particles);
-  }
-
   #setupCollisionEvents() {
     this.on("collisionstart", (event) => {
       if (event.other instanceof Asteroid) {
@@ -113,16 +70,7 @@ export default class Bullet extends Actor {
         asteroid.takeDamage();
 
         this.actions.clearActions();
-        this.actions
-          .callMethod(() => {
-            this.#particles.acc = this.vel;
-            this.#particles.maxVel = 100;
-            this.#particles.minVel = 60;
-            this.#particles.emitRate = 200;
-            this.#particles.particleLife = 1500;
-          })
-          .delay(20)
-          .die();
+        this.kill();
       }
     });
   }
@@ -134,10 +82,5 @@ export default class Bullet extends Actor {
 
     const newScale = this.scale.x - 0.3 * (_delta / 1000);
     this.scale = vec(newScale, newScale);
-
-    if (newScale < 0.3) {
-      this.#particles.particleLife = 2000;
-      this.#particles.maxVel = 100;
-    }
   }
 }

@@ -1,6 +1,8 @@
-import { DisplayMode, Engine } from "excalibur";
+import { DisplayMode, Engine, Random } from "excalibur";
 import { loader } from "./resources";
-import SpaceScene from "./scenes/space";
+import { SpaceScene } from "./scenes/space";
+
+export const random = new Random(1);
 
 class Game extends Engine {
   constructor() {

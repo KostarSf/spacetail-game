@@ -7,10 +7,10 @@ import {
   Scene,
   vec,
 } from "excalibur";
-import Player from "../actors/Player";
-import Asteroid from "../actors/Asteroid";
+import { Player } from "../actors/player";
+import { Asteroid } from "../actors/asteroid";
 
-class SpaceScene extends Scene {
+export class SpaceScene extends Scene {
   static key = "spacescene";
 
   #starsParticles: ParticleEmitter;
@@ -63,5 +63,3 @@ class SpaceScene extends Scene {
     );
   }
 }
-
-export default SpaceScene;
