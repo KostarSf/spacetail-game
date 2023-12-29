@@ -10,6 +10,7 @@ import {
 import { Animations, Resources } from "../resources";
 import { CosmicBody } from "./cosmic-body";
 import { Bullet } from "./bullet";
+import { angleDiff, linInt, radToDeg } from "../utils";
 
 const trianglePoints = [vec(15, 0), vec(-5, 12), vec(-5, -12)];
 
@@ -68,7 +69,7 @@ export class Player extends CosmicBody {
       this.#accelerate();
     }
 
-    this.applyMovement(engine, delta);
+    this.applyMovement(delta);
     this.updateVisuals(engine);
 
     this.#accelerated = false;
@@ -94,20 +95,36 @@ export class Player extends CosmicBody {
     this.#accelerated = true;
   }
 
-  applyMovement(engine: Engine, delta = 1) {
+  addMotion(direction: number, amount: number, delta = 1) {
+    this.vel = this.vel.add(Vector.fromAngle(direction).scale(amount * delta));
+  }
+
+  applyMovement(delta = 1) {
+    const speed = this.vel.distance();
+
     if (this.#accelerated) {
-      Vector.fromAngle(this.rotation);
-      this.vel = this.vel.add(
-        Vector.fromAngle(this.rotation).scale(0.3 * delta)
+      const acceleration = speed < 120 ? 0.12 : 0.04;
+
+      this.addMotion(this.rotation, acceleration, delta);
+
+      const drifting = Math.abs(
+        radToDeg(angleDiff(this.rotation, this.vel.toAngle()))
       );
+      if (drifting > 100) {
+        const driftAcceleration = linInt(drifting, 100, 180, 0, 0.1);
+        this.addMotion(this.rotation, driftAcceleration, delta);
+      }
+
+      this.vel = this.vel.clampMagnitude(500);
     } else {
-      const speed = this.vel.distance();
       let velocity = vec(0, 0);
 
-      if (speed > 30) {
-        velocity = this.vel.scale(0.995);
-      } else if (speed > 0.2) {
-        velocity = this.vel.scale(0.98);
+      if (speed > 100) {
+        velocity = this.vel.scale(0.9999);
+      } else if (speed > 1) {
+        velocity = this.vel.scale(0.997);
+      } else {
+        velocity = this.vel.scale(0.95);
       }
 
       this.vel = velocity;
