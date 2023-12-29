@@ -29,10 +29,7 @@ export class SpaceScene extends Scene {
     this.add(player);
     this.#player = player;
 
-    const asteroids = Asteroid.randomSpawn(20);
-    asteroids.forEach((asteroid) => {
-      this.add(asteroid);
-    });
+    Asteroid.randomSpawn(10).forEach((asteroid) => this.add(asteroid));
 
     this.camera.strategy.elasticToActor(player, 0.5, 0.1);
     this.camera.pos = player.pos;

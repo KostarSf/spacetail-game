@@ -50,9 +50,13 @@ export class Bullet extends Actor {
   onPostUpdate(_engine: Engine, _delta: number): void {
     // TODO - рейт замедления нужно будет потом динамически доставать из родителя
     // чтобы пули всегда летели параллельно кораблю
-    this.vel = this.vel.scale(0.995);
+    // this.vel = this.vel.scale(0.995);
 
     const newScale = this.scale.x - 0.3 * (_delta / 1000);
     this.scale = vec(newScale, newScale);
+
+    if (this.isOffScreen && !this.isKilled()) {
+      this.kill();
+    }
   }
 }
