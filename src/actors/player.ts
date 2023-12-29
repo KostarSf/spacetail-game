@@ -7,7 +7,7 @@ import {
   Vector,
   vec,
 } from "excalibur";
-import { Resources } from "../resources";
+import { Animations, Resources } from "../resources";
 import { CosmicBody } from "./cosmic-body";
 import { Bullet } from "./bullet";
 
@@ -17,6 +17,7 @@ export class Player extends CosmicBody {
   #lastCursorPos: Vector = vec(0, 0);
   #controllType: "keyboard" | "mouse" = "keyboard";
   #accelerated: boolean = false;
+  #jetsGraphics = Animations.JetStream;
 
   constructor() {
     super(10, {
@@ -31,8 +32,10 @@ export class Player extends CosmicBody {
   onInitialize(_engine: Engine): void {
     super.onInitialize(_engine);
 
-    // this.graphics.use(new Polygon({points: trianglePoints}))
-    this.graphics.use(Resources.Ship.toSprite());
+    // this.graphics.use(new Polygon({ points: trianglePoints }))
+    this.graphics.use(Resources.Ship.Player.Default.toSprite());
+    this.graphics.add(this.#jetsGraphics);
+
     _engine.input.pointers.on("move", (e) => this.#onPointerMove(e));
 
     this.on("precollision", (e) => {
@@ -65,7 +68,10 @@ export class Player extends CosmicBody {
       this.#accelerate();
     }
 
-    this.applyMovement(delta);
+    this.applyMovement(engine, delta);
+    this.updateVisuals(engine);
+
+    this.#accelerated = false;
 
     let rotationMult = 0;
     if (engine.input.keyboard.isHeld(Keys.A)) {
@@ -88,7 +94,7 @@ export class Player extends CosmicBody {
     this.#accelerated = true;
   }
 
-  applyMovement(delta = 1) {
+  applyMovement(engine: Engine, delta = 1) {
     if (this.#accelerated) {
       Vector.fromAngle(this.rotation);
       this.vel = this.vel.add(
@@ -106,8 +112,17 @@ export class Player extends CosmicBody {
 
       this.vel = velocity;
     }
+  }
 
-    this.#accelerated = false;
+  updateVisuals(engine: Engine) {
+    if (this.#accelerated) {
+      this.graphics.show(this.#jetsGraphics);
+
+      const shakeMagnitude = 1 + this.vel.squareDistance() * 0.000002;
+      engine.currentScene.camera.shake(shakeMagnitude, shakeMagnitude, 50);
+    } else {
+      this.graphics.hide(this.#jetsGraphics);
+    }
   }
 
   rotate(angle: number) {

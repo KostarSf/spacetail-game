@@ -1,4 +1,5 @@
 import { Actor, ActorArgs, CollisionType, Color, Engine } from "excalibur";
+import { Explosion } from "./explosion";
 
 export class CosmicBody extends Actor {
   #mass: number;
@@ -32,5 +33,11 @@ export class CosmicBody extends Actor {
 
       other.vel = other.vel.add(force.scale(-1 / other.mass));
     });
+  }
+
+  /** Destroy this cosmic body and emit explosion */
+  destroy(): void {
+    this.scene.add(new Explosion(this.pos));
+    this.kill();
   }
 }

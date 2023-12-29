@@ -1,13 +1,5 @@
-import {
-  Actor,
-  Animation,
-  Engine,
-  SpriteSheet,
-  Vector,
-  range,
-  vec,
-} from "excalibur";
-import { Resources } from "../resources";
+import { Actor, Engine, Vector, vec } from "excalibur";
+import { Animations } from "../resources";
 import { Asteroid } from "./asteroid";
 
 export class Bullet extends Actor {
@@ -27,30 +19,10 @@ export class Bullet extends Actor {
 
   onInitialize(_engine: Engine): void {
     this.#setupBulletMotion();
-    this.#setupSpriteAnimation();
     this.#setupCollisionEvents();
 
+    this.graphics.use(Animations.Bullet);
     this.actions.delay(5000).die();
-  }
-
-  #setupSpriteAnimation() {
-    const blinkSheet = SpriteSheet.fromImageSource({
-      image: Resources.Dynamic.Bullet,
-      grid: {
-        rows: 1,
-        columns: 2,
-        spriteWidth: 8,
-        spriteHeight: 6,
-      },
-    });
-
-    const blinkAnimation = Animation.fromSpriteSheet(
-      blinkSheet,
-      range(0, 1),
-      250
-    );
-
-    this.graphics.use(blinkAnimation);
   }
 
   #setupBulletMotion() {

@@ -1,7 +1,23 @@
-import { ImageSource, Loader } from "excalibur";
+import {
+  ImageSource,
+  Loader,
+  SpriteSheet,
+  Animation,
+  range,
+  AnimationStrategy,
+} from "excalibur";
 
 const Resources = {
-  Ship: new ImageSource("/assets/images/ship/default.png"),
+  Ship: {
+    Player: {
+      Default: new ImageSource("/assets/images/ship/player.png"),
+      Damaged: new ImageSource("/assets/images/ship/player_damaged.png"),
+    },
+    Pirate: {
+      Default: new ImageSource("/assets/images/ship/pirate.png"),
+      Damaged: new ImageSource("/assets/images/ship/pirate_damaged.png"),
+    },
+  },
   Asteroid: {
     Small: [
       new ImageSource("/assets/images/asteroids/small-01.png"),
@@ -25,6 +41,8 @@ const Resources = {
   },
   Dynamic: {
     Bullet: new ImageSource("/assets/images/dynamics/bullet.png"),
+    Explosion: new ImageSource("/assets/images/dynamics/explosion.png"),
+    JetStream: new ImageSource("/assets/images/ship/jet_stream.png"),
   },
 };
 
@@ -37,16 +55,73 @@ function getAsteroidImage(
   return group[index];
 }
 
+class Animations {
+  static get Bullet() {
+    const blinkSheet = SpriteSheet.fromImageSource({
+      image: Resources.Dynamic.Bullet,
+      grid: {
+        rows: 1,
+        columns: 2,
+        spriteWidth: 8,
+        spriteHeight: 6,
+      },
+    });
+
+    const blinkAnimation = Animation.fromSpriteSheet(
+      blinkSheet,
+      range(0, 1),
+      250
+    );
+
+    return blinkAnimation;
+  }
+
+  static get Explosion() {
+    const explosionSheet = SpriteSheet.fromImageSource({
+      image: Resources.Dynamic.Explosion,
+      grid: {
+        rows: 1,
+        columns: 4,
+        spriteWidth: 32,
+        spriteHeight: 32,
+      },
+    });
+
+    const explosionAnimation = Animation.fromSpriteSheet(
+      explosionSheet,
+      range(0, 3),
+      100,
+      AnimationStrategy.End
+    );
+
+    return explosionAnimation;
+  }
+
+  static get JetStream() {
+    const jetSheet = SpriteSheet.fromImageSource({
+      image: Resources.Dynamic.JetStream,
+      grid: {
+        rows: 1,
+        columns: 2,
+        spriteWidth: 32,
+        spriteHeight: 32,
+      },
+    });
+
+    const jetAnimation = Animation.fromSpriteSheet(jetSheet, range(0, 1), 150);
+
+    return jetAnimation;
+  }
+}
+
 class GameLoader extends Loader {
   constructor() {
     super([
-      Resources.Ship,
-      ...Resources.Asteroid.Small,
-      ...Resources.Asteroid.Medium,
-      ...Resources.Asteroid.Large,
-      ...Resources.Asteroid.Item,
-      Resources.Particle.Debree,
-      Resources.Dynamic.Bullet,
+      ...Object.values(Resources.Ship.Player),
+      ...Object.values(Resources.Ship.Pirate),
+      ...Object.values(Resources.Asteroid).flat(),
+      ...Object.values(Resources.Particle),
+      ...Object.values(Resources.Dynamic),
     ]);
 
     this.backgroundColor = "#000";
@@ -59,4 +134,4 @@ class GameLoader extends Loader {
 
 const loader = new GameLoader();
 
-export { Resources, getAsteroidImage, loader };
+export { Resources, Animations, getAsteroidImage, loader };
