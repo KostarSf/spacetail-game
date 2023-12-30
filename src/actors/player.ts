@@ -12,7 +12,7 @@ import { CosmicBody } from "./cosmic-body";
 import { Bullet } from "./bullet";
 import { angleDiff, linInt, radToDeg } from "../utils";
 
-const trianglePoints = [vec(15, 0), vec(-5, 12), vec(-5, -12)];
+const trianglePoints = [vec(12, 0), vec(-7, 10), vec(-7, -10)];
 
 export class Player extends CosmicBody {
   #lastCursorPos: Vector = vec(0, 0);
@@ -33,7 +33,6 @@ export class Player extends CosmicBody {
   onInitialize(_engine: Engine): void {
     super.onInitialize(_engine);
 
-    // this.graphics.use(new Polygon({ points: trianglePoints }))
     this.graphics.use(Resources.Ship.Player.Default.toSprite());
     this.graphics.add(this.#jetsGraphics);
 
