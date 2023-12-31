@@ -15,9 +15,9 @@ import { angleDiff, linInt, radToDeg } from "../utils";
 const trianglePoints = [vec(12, 0), vec(-7, 10), vec(-7, -10)];
 
 export class Player extends CosmicBody {
-  #lastCursorPos: Vector = vec(0, 0);
+  #lastCursorPos = vec(0, 0);
   #controllType: "keyboard" | "mouse" = "keyboard";
-  #accelerated: boolean = false;
+  #accelerated = false;
   #jetsGraphics = Animations.JetStream;
 
   constructor() {
@@ -58,10 +58,11 @@ export class Player extends CosmicBody {
   }
 
   onPostUpdate(engine: Engine, delta: number): void {
-    const cursorWorldPos = engine.screenToWorldCoordinates(this.#lastCursorPos);
-
     if (this.#controllType === "mouse") {
-      this.lookTo(cursorWorldPos);
+      const cursorWorldPos = engine.screenToWorldCoordinates(
+        this.#lastCursorPos
+      );
+      this.lookTo(cursorWorldPos, true);
     }
 
     if (engine.input.keyboard.isHeld(Keys.W)) {
@@ -85,9 +86,21 @@ export class Player extends CosmicBody {
     this.rotate(rotationMult * delta * 0.005);
   }
 
-  lookTo(pos: Vector) {
+  lookTo(pos: Vector, instant = false) {
     const direction = pos.sub(this.pos).toAngle();
-    this.rotation = direction;
+
+    if (instant) {
+      this.rotation = direction;
+      return;
+    }
+
+    const difference = angleDiff(this.rotation, direction);
+
+    if (Math.abs(difference) > 0.01) {
+      this.rotation += difference * 0.2;
+    } else {
+      this.rotation = direction;
+    }
   }
 
   #accelerate() {
@@ -101,32 +114,39 @@ export class Player extends CosmicBody {
   applyMovement(delta = 1) {
     const speed = this.vel.distance();
 
+    const maxSpeed = 500;
+    const burstEdge = 200;
+
     if (this.#accelerated) {
-      const acceleration = speed < 120 ? 0.12 : 0.04;
+      const acceleration =
+        speed < burstEdge
+          ? linInt(speed, 0, burstEdge, 0.2, 0.05)
+          : linInt(speed, burstEdge, maxSpeed, 0.05, 0.01);
 
       this.addMotion(this.rotation, acceleration, delta);
 
       const drifting = Math.abs(
         radToDeg(angleDiff(this.rotation, this.vel.toAngle()))
       );
+
       if (drifting > 100) {
-        const driftAcceleration = linInt(drifting, 100, 180, 0, 0.1);
+        const driftAcceleration = linInt(drifting, 45, 180, 0, 0.3);
         this.addMotion(this.rotation, driftAcceleration, delta);
       }
 
-      this.vel = this.vel.clampMagnitude(500);
+      this.vel = this.vel.clampMagnitude(maxSpeed);
     } else {
-      let velocity = vec(0, 0);
+      let multiplier = 0;
 
       if (speed > 100) {
-        velocity = this.vel.scale(0.9999);
-      } else if (speed > 1) {
-        velocity = this.vel.scale(0.997);
-      } else {
-        velocity = this.vel.scale(0.95);
+        multiplier = linInt(speed, 100, maxSpeed, 0.9999, 0.999999);
+      } else if (speed > 10) {
+        multiplier = linInt(speed, 10, 100, 0.997, 0.9999);
+      } else if (speed > 0.01) {
+        multiplier = linInt(speed, 0.01, 10, 0.95, 0.997);
       }
 
-      this.vel = velocity;
+      this.vel = this.vel.scale(multiplier);
     }
   }
 
@@ -134,7 +154,7 @@ export class Player extends CosmicBody {
     if (this.#accelerated) {
       this.graphics.show(this.#jetsGraphics);
 
-      const shakeMagnitude = 1 + this.vel.squareDistance() * 0.000002;
+      const shakeMagnitude = 1 + this.vel.squareDistance() * 0.0000015;
       engine.currentScene.camera.shake(shakeMagnitude, shakeMagnitude, 50);
     } else {
       this.graphics.hide(this.#jetsGraphics);

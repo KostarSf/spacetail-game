@@ -26,13 +26,11 @@ export class Bullet extends Actor {
   }
 
   #setupBulletMotion() {
-    this.vel = this.#parent.vel
-      .scale(1)
-      .add(
-        Vector.fromAngle(this.#parent.rotation).scale(
-          Math.max(300, 100 + this.#parent.vel.distance() * 0.8)
-        )
-      );
+    this.vel = this.#parent.vel.add(
+      Vector.fromAngle(this.#parent.rotation).scale(
+        Math.max(300, 100 + this.#parent.vel.distance() * 0.9)
+      )
+    );
   }
 
   #setupCollisionEvents() {

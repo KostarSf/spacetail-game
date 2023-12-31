@@ -5,7 +5,8 @@ export function angleDiffDeg(angle1: number, angle2: number) {
   angle1 = ((angle1 % 360) + 360) % 360;
   angle2 = ((angle2 % 360) + 360) % 360;
 
-  return ((angle2 - angle1 + 180) % 360) - 180;
+  const diff = ((angle2 - angle1 + 180) % 360) - 180;
+  return diff + (diff < -180 ? 360 : 0);
 }
 
 /** Calculates the absolute difference between angles in radians
@@ -17,7 +18,8 @@ export function angleDiff(angle1: number, angle2: number) {
   angle1 = ((angle1 % _2_PI) + _2_PI) % _2_PI;
   angle2 = ((angle2 % _2_PI) + _2_PI) % _2_PI;
 
-  return ((angle2 - angle1 + Math.PI) % _2_PI) - Math.PI;
+  const diff = ((angle2 - angle1 + Math.PI) % _2_PI) - Math.PI;
+  return diff + (diff < -Math.PI ? _2_PI : 0);
 }
 
 export function clamp(value: number, min: number, max: number) {

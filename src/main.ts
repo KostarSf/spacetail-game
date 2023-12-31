@@ -1,4 +1,4 @@
-import { DisplayMode, Engine, Random } from "excalibur";
+import { Color, DisplayMode, Engine, Random } from "excalibur";
 import { loader } from "./resources";
 import { SpaceScene } from "./scenes/space";
 // import { DevTool } from "@excaliburjs/dev-tools";
@@ -12,6 +12,8 @@ class Game extends Engine {
       height: 600,
       displayMode: DisplayMode.FitScreen,
       antialiasing: false,
+      suppressPlayButton: true,
+      backgroundColor: Color.Black,
     });
   }
 
