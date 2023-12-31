@@ -1,7 +1,7 @@
 import { Color, DisplayMode, Engine, Random } from "excalibur";
 import { loader } from "./resources";
 import { SpaceScene } from "./scenes/space";
-// import { DevTool } from "@excaliburjs/dev-tools";
+import { DevTool } from "@excaliburjs/dev-tools";
 
 export const random = new Random(1);
 
@@ -28,4 +28,4 @@ class Game extends Engine {
 
 export const game = new Game().initialize();
 
-// const devtool = new DevTool(game);
+const devtool = new DevTool(game);
