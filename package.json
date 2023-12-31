@@ -9,7 +9,7 @@
   "author": "Maksim Peskov",
   "license": "none yet",
   "scripts": {
-    "dev": "vite",
+    "dev": "node dev.js",
     "build": "tsc && vite build",
     "serve": "vite preview",
     "test": "npm run build && ex-test -d ./dist -t ./test/test.js"
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@excaliburjs/dev-tools": "^0.28.0",
+    "chokidar": "^3.5.3",
     "excalibur": "0.28.4",
     "typescript": "5.3.3",
     "vite": "5.0.10"
