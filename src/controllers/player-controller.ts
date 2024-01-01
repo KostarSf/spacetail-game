@@ -32,6 +32,10 @@ export class PlayerController implements ShipController {
     });
   }
 
+  onTakeDamage(ship: Ship, amount: number, angle: number): void {
+    ship.scene.camera.shake(5, 5, 500);
+  }
+
   onUpdate(engine: Engine, delta: number, ship: Ship): void {
     this.#applyPlayerInput(engine, delta, ship);
   }

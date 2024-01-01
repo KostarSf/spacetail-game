@@ -1,4 +1,11 @@
-import { Actor, ActorArgs, CollisionType, Color, Engine } from "excalibur";
+import {
+  Actor,
+  ActorArgs,
+  CollisionType,
+  Color,
+  Engine,
+  Vector,
+} from "excalibur";
 import { Explosion } from "./explosion";
 
 export class CosmicBody extends Actor {
@@ -39,5 +46,11 @@ export class CosmicBody extends Actor {
   destroy(): void {
     this.scene.add(new Explosion(this.pos));
     this.kill();
+  }
+
+  takeDamage(amount: number, angle: number) {}
+
+  addMotion(amount: number, direction = this.rotation, delta = 1) {
+    this.vel = this.vel.add(Vector.fromAngle(direction).scale(amount * delta));
   }
 }

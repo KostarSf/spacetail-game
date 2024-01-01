@@ -67,7 +67,7 @@ export class Asteroid extends CosmicBody {
     }
   }
 
-  takeDamage() {
+  takeDamage(amount: number, angle: number): void {
     this.#health -= 1;
     this.destroy();
   }

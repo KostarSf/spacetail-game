@@ -13,4 +13,6 @@ export class DummyController implements ShipController {
     ship.rotate(Math.PI * 0.8 * delta * 0.001);
     ship.accelerate();
   }
+
+  onTakeDamage(ship: Ship, amount: number, angle: number): void {}
 }

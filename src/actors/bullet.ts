@@ -1,6 +1,6 @@
 import { Actor, Engine, Vector, vec } from "excalibur";
 import { Animations } from "../resources";
-import { Asteroid } from "./asteroid";
+import { CosmicBody } from "./cosmic-body";
 
 export class Bullet extends Actor {
   #parent: Actor;
@@ -35,9 +35,9 @@ export class Bullet extends Actor {
 
   #setupCollisionEvents() {
     this.on("collisionstart", (event) => {
-      if (event.other instanceof Asteroid) {
-        const asteroid = event.other;
-        asteroid.takeDamage();
+      if (event.other instanceof CosmicBody && event.other !== this.#parent) {
+        const cosmicBody = event.other;
+        cosmicBody.takeDamage(10, this.pos.sub(cosmicBody.pos).toAngle());
 
         this.actions.clearActions();
         this.kill();

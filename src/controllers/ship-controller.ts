@@ -7,4 +7,6 @@ export interface ShipController {
   onInitialize(engine: Engine, ship: Ship): void;
 
   onUpdate(engine: Engine, delta: number, ship: Ship): void;
+
+  onTakeDamage(ship: Ship, amount: number, angle: number): void;
 }

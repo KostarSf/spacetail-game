@@ -10,13 +10,17 @@ import {
 import { Asteroid } from "../actors/asteroid";
 import { Ship } from "../actors/ship";
 import { PlayerController } from "../controllers/player-controller";
-import { DummyController } from "../controllers/dummy-controller";
+import { HostileController } from "../controllers/hostile-controller";
 
 export class SpaceScene extends Scene {
   static key = "spacescene";
 
   #starsParticles: ParticleEmitter;
-  #player!: Actor;
+  #player?: Actor;
+
+  get player() {
+    return this.#player;
+  }
 
   constructor() {
     super();
@@ -38,7 +42,23 @@ export class SpaceScene extends Scene {
     this.add(
       new Ship({
         pos: vec(150, 50),
-        controller: new DummyController(),
+        controller: new HostileController(),
+        colliderScale: 1.5,
+      })
+    );
+
+    this.add(
+      new Ship({
+        pos: vec(50, 50),
+        controller: new HostileController(),
+        colliderScale: 1.5,
+      })
+    );
+
+    this.add(
+      new Ship({
+        pos: vec(200, 50),
+        controller: new HostileController(),
         colliderScale: 1.5,
       })
     );
@@ -69,6 +89,8 @@ export class SpaceScene extends Scene {
   }
 
   onPostUpdate(engine: Engine, _delta: number): void {
+    if (!this.#player) return;
+
     this.#starsParticles.transform.pos = this.#player.pos.sub(
       vec(engine.halfDrawWidth, engine.halfDrawHeight)
     );
