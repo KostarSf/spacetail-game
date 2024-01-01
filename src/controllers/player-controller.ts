@@ -42,7 +42,10 @@ export class PlayerController implements ShipController {
 
   #applyPlayerInput(engine: Engine, delta: number, ship: Ship) {
     if (engine.input.keyboard.isHeld(Keys.W)) {
+      const boosted = engine.input.keyboard.isHeld(Keys.ShiftLeft);
+
       ship.accelerate();
+      ship.boost(boosted);
 
       const shakeMagnitude = 1 + ship.vel.squareDistance() * 0.0000015;
       engine.currentScene.camera.shake(shakeMagnitude, shakeMagnitude, 50);

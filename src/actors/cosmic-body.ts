@@ -9,6 +9,8 @@ import {
 import { Explosion } from "./explosion";
 
 export class CosmicBody extends Actor {
+  invincible = false;
+
   #mass: number;
   get mass() {
     return this.#mass;

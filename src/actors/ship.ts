@@ -1,4 +1,4 @@
-import { Color, Engine, PolygonCollider, Vector, vec } from "excalibur";
+import { Color, Engine, PolygonCollider, Sprite, Vector, vec } from "excalibur";
 import { CosmicBody } from "./cosmic-body";
 import { Animations, Resources } from "../resources";
 import { Bullet } from "./bullet";
@@ -6,7 +6,7 @@ import { angleDiff, linInt, radToDeg } from "../utils";
 import { ShipController } from "../controllers/ship-controller";
 import { Explosion } from "./explosion";
 
-const SHIP_COLLIDER_POINTS = [vec(12, 0), vec(-7, 10), vec(-7, -10)];
+const SHIP_COLLIDER_POINTS = [vec(18, 0), vec(-11, 15), vec(-11, -15)];
 
 export class Ship extends CosmicBody {
   #accelerated = false;
@@ -23,7 +23,10 @@ export class Ship extends CosmicBody {
   #rotateTo: number;
   #rotationMoment = 0.1;
 
+  static = false;
+
   #controller?: ShipController;
+  #shipSprite: Sprite;
 
   get controller() {
     return this.#controller;
@@ -63,6 +66,7 @@ export class Ship extends CosmicBody {
     pos?: Vector;
     colliderScale?: number;
     controller?: ShipController;
+    shipSprite?: Sprite;
   }) {
     super(10, {
       pos: parameters.pos,
@@ -76,6 +80,8 @@ export class Ship extends CosmicBody {
       }),
     });
 
+    this.#shipSprite =
+      parameters.shipSprite ?? Resources.Ship.Player.Default.toSprite();
     this.#controller = parameters.controller;
     this.#rotateTo = this.rotation;
   }
@@ -85,7 +91,7 @@ export class Ship extends CosmicBody {
 
     this.#controller?.onInitialize(_engine, this);
 
-    this.graphics.use(Resources.Ship.Player.Default.toSprite());
+    this.graphics.use(this.#shipSprite);
     this.graphics.add(this.#jetsGraphics);
 
     this.on("collisionstart", (e) => {
@@ -110,9 +116,11 @@ export class Ship extends CosmicBody {
 
     this.#controller?.onUpdate(_engine, _delta, this);
 
-    this.#updateRotation(_delta);
-    this.#updateMotion(_delta);
-    this.#updateVisuals();
+    if (!this.static) {
+      this.#updateRotation(_delta);
+      this.#updateMotion(_delta);
+      this.#updateVisuals();
+    }
 
     this.accelerate(false);
     this.boost(false);
@@ -208,6 +216,10 @@ export class Ship extends CosmicBody {
   }
 
   #updateVisuals() {
-    this.#jetsGraphics.opacity = this.accelerated ? 1 : 0;
+    if (this.static) {
+      this.#jetsGraphics.opacity = this.vel.squareDistance() > 0 ? 1 : 0;
+    } else {
+      this.#jetsGraphics.opacity = this.accelerated ? 1 : 0;
+    }
   }
 }

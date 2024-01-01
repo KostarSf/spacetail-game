@@ -10,7 +10,9 @@ import {
 import { Asteroid } from "../actors/asteroid";
 import { Ship } from "../actors/ship";
 import { PlayerController } from "../controllers/player-controller";
-import { HostileController } from "../controllers/hostile-controller";
+import { HunterAI } from "../controllers/hunter-ai";
+import { Resources } from "../resources";
+import { OldEnemyAI } from "../controllers/old-enemy-ai";
 
 export class SpaceScene extends Scene {
   static key = "spacescene";
@@ -34,36 +36,27 @@ export class SpaceScene extends Scene {
     const player = new Ship({
       pos: vec(150, 150),
       controller: new PlayerController(),
+      colliderScale: 0.65,
     });
 
     this.add(player);
     this.#player = player;
 
-    this.add(
-      new Ship({
-        pos: vec(150, 50),
-        controller: new HostileController(),
-        colliderScale: 1.5,
-      })
-    );
+    const hostileSpawns = [vec(50, -50), vec(150, 0), vec(250, -50)];
 
-    this.add(
-      new Ship({
-        pos: vec(50, 50),
-        controller: new HostileController(),
-        colliderScale: 1.5,
-      })
-    );
+    hostileSpawns.forEach((pos) => {
+      this.add(
+        new Ship({
+          pos,
+          controller: new HunterAI(),
+          shipSprite: Resources.Ship.Pirate.Default.toSprite(),
+        })
+      );
+    });
 
-    this.add(
-      new Ship({
-        pos: vec(200, 50),
-        controller: new HostileController(),
-        colliderScale: 1.5,
-      })
-    );
-
-    Asteroid.randomSpawn(10).forEach((asteroid) => this.add(asteroid));
+    Asteroid.randomSpawn(5).forEach((asteroid) => {
+      this.add(asteroid);
+    });
 
     this.camera.strategy.elasticToActor(player, 0.5, 0.1);
     this.camera.pos = player.pos;

@@ -1,5 +1,5 @@
-const chokidar = require("chokidar");
-const { spawn } = require("node:child_process");
+import chokidar from "chokidar";
+import { spawn } from "node:child_process";
 
 let proc = null;
 

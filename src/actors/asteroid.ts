@@ -68,8 +68,15 @@ export class Asteroid extends CosmicBody {
   }
 
   takeDamage(amount: number, angle: number): void {
-    this.#health -= 1;
-    this.destroy();
+    this.addMotion((amount * 10) / this.mass, angle - Math.PI);
+
+    if (this.invincible) return;
+
+    this.#health -= amount;
+
+    if (this.#health <= 0) {
+      this.destroy();
+    }
   }
 
   static randomSpawn(count: number) {

@@ -4,9 +4,9 @@ import { Ship } from "../actors/ship";
 export interface ShipController {
   get isPlayer(): boolean;
 
-  onInitialize(engine: Engine, ship: Ship): void;
+  onInitialize(_engine: Engine, _ship: Ship): void;
 
-  onUpdate(engine: Engine, delta: number, ship: Ship): void;
+  onUpdate(_engine: Engine, _delta: number, _ship: Ship): void;
 
-  onTakeDamage(ship: Ship, amount: number, angle: number): void;
+  onTakeDamage(_ship: Ship, _amount: number, _angle: number): void;
 }

@@ -41,6 +41,10 @@ export function linInt(
     interpolatedLower +
     interpolationFactor * (interpolatedHigher - interpolatedLower);
 
+  if (isNaN(interpolatedValue)) {
+    return higherBorder;
+  }
+
   return interpolatedValue;
 }
 
