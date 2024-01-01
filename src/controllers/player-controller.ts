@@ -1,7 +1,7 @@
 import { Engine, Keys } from "excalibur";
-import { ShipController } from "./ship-controller";
-import { Ship } from "../actors/ship";
 import { CosmicBody } from "../actors/cosmic-body";
+import { Ship } from "../actors/ship";
+import { ShipController } from "./ship-controller";
 
 export class PlayerController implements ShipController {
   #inputType: "keyboard" | "mouse";
@@ -14,30 +14,34 @@ export class PlayerController implements ShipController {
     return true;
   }
 
-  onInitialize(engine: Engine, ship: Ship): void {
-    engine.input.pointers.on("move", (e) => {
+  get isPirate(): boolean {
+    return false;
+  }
+
+  onInitialize(_engine: Engine, _ship: Ship): void {
+    _engine.input.pointers.on("move", (e) => {
       this.#inputType = "mouse";
-      ship.rotateTo(e.worldPos, true);
+      _ship.rotateTo(e.worldPos, true);
     });
 
-    engine.input.pointers.primary.on("down", () => {
-      engine.currentScene.camera.shake(2, 2, 100);
-      ship.fire();
+    _engine.input.pointers.primary.on("down", () => {
+      _engine.currentScene.camera.shake(2, 2, 100);
+      _ship.fire();
     });
 
-    ship.on("precollision", (e) => {
+    _ship.on("precollision", (e) => {
       if (e.other instanceof CosmicBody) {
-        engine.currentScene.camera.shake(4, 4, 100);
+        _engine.currentScene.camera.shake(4, 4, 100);
       }
     });
   }
 
-  onTakeDamage(ship: Ship, amount: number, angle: number): void {
-    ship.scene.camera.shake(5, 5, 500);
+  onTakeDamage(_ship: Ship, _amount: number, _angle: number): void {
+    _ship.scene.camera.shake(5, 5, 500);
   }
 
-  onUpdate(engine: Engine, delta: number, ship: Ship): void {
-    this.#applyPlayerInput(engine, delta, ship);
+  onUpdate(_engine: Engine, _delta: number, _ship: Ship): void {
+    this.#applyPlayerInput(_engine, _delta, _ship);
   }
 
   #applyPlayerInput(engine: Engine, delta: number, ship: Ship) {

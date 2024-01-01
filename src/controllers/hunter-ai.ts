@@ -1,21 +1,29 @@
-import { Actor, CollisionType, Color, Engine, Trigger } from "excalibur";
-import { TickableController } from "./tickable-controller";
-import { Ship } from "../actors/ship";
-import { SpaceScene } from "../scenes/space";
-import { linInt } from "../utils";
-import { random } from "../main";
+import { Actor, CollisionType, Engine } from "excalibur";
 import { CosmicBody } from "../actors/cosmic-body";
+import { Ship } from "../actors/ship";
+import { random } from "../main";
+import { linInt } from "../utils";
+import { TickableController } from "./tickable-controller";
 
 export class HunterAI extends TickableController {
-  #target?: Actor;
+  #target?: Actor | null;
 
-  #chase = false;
+  #accelerate = false;
   #boost = false;
 
   #nearestObstacles = new Set<Actor>();
 
   #trigger: Actor;
   #triggerRadius = 40;
+
+  #health = 100;
+
+  /** For returning on this pos after purcuit finishes */
+  // #lastIdlePos = vec(0, 0);
+
+  get isPirate(): boolean {
+    return true;
+  }
 
   constructor() {
     super({ ticksInterval: 200 });
@@ -45,14 +53,32 @@ export class HunterAI extends TickableController {
   }
 
   onTick(_engine: Engine, _ship: Ship) {
-    const player = (_engine.currentScene as SpaceScene).player;
-    if (!player) return;
+    if (!this.#target || this.#target.isKilled()) {
+      this.#target = null;
+    }
 
-    this.#target = player;
+    if (this.#target) {
+      this.#chasing(_ship, this.#target);
+    } else {
+      this.#idling(_ship);
+    }
+  }
 
-    const distance = _ship.pos.distance(this.#target.pos);
+  #idling(_ship: Ship) {
+    if (_ship.speed > 30) {
+      _ship.rotateSet(_ship.vel.toAngle() + Math.PI);
+      this.#accelerate = true;
+    } else {
+      this.#accelerate = false;
+    }
 
-    this.#chase = distance > 200;
+    this.#boost = false;
+  }
+
+  #chasing(_ship: Ship, _target: Actor) {
+    const distance = _ship.pos.distance(_target.pos);
+
+    this.#accelerate = distance > 200;
     this.#boost = distance > 300;
 
     _ship.speedMultiplier = linInt(distance, 400, 800, 1, 1.2);
@@ -63,14 +89,14 @@ export class HunterAI extends TickableController {
     }
 
     if (distance > 100) {
-      _ship.rotateTo(this.#target.pos.add(this.#target.vel.sub(_ship.vel)));
+      _ship.rotateTo(_target.pos.add(_target.vel.sub(_ship.vel)));
     } else {
-      _ship.rotateTo(this.#target.pos);
+      _ship.rotateTo(_target.pos);
     }
   }
 
   onUpdate(_engine: Engine, _delta: number, _ship: Ship): void {
-    if (this.#chase) {
+    if (this.#accelerate) {
       _ship.accelerate();
       _ship.boost(this.#boost);
     }
@@ -84,12 +110,27 @@ export class HunterAI extends TickableController {
         0.005,
         0.001
       );
-      _ship.addMotion(_ship.speed * multiplier, direction, _delta);
+      _ship.addMotion(Math.max(_ship.speed, 7) * multiplier, direction, _delta);
     });
   }
 
-  onTakeDamage(_ship: Ship, _amount: number, _angle: number): void {
+  onTakeDamage(
+    _ship: Ship,
+    _amount: number,
+    _angle: number,
+    _source?: Actor
+  ): void {
+    if (_source) {
+      const newTarget = !this.#target || random.d10() === 1 ? _source : null;
+      if (newTarget) this.#target = newTarget;
+    }
+
     const rotation = random.floating(0.5, 1.5);
     _ship.rotate(random.pickOne([-rotation, rotation]), true);
+
+    this.#health -= _amount;
+    if (this.#health <= 0) {
+      _ship.destroy();
+    }
   }
 }

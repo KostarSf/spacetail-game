@@ -1,9 +1,18 @@
-import { Color, Engine, PolygonCollider, Sprite, Vector, vec } from "excalibur";
-import { CosmicBody } from "./cosmic-body";
-import { Animations, Resources } from "../resources";
-import { Bullet } from "./bullet";
-import { angleDiff, linInt, radToDeg } from "../utils";
+import {
+  Actor,
+  Color,
+  Engine,
+  PolygonCollider,
+  Sprite,
+  Vector,
+  vec,
+} from "excalibur";
+import { DummyController } from "../controllers/dummy-controller";
 import { ShipController } from "../controllers/ship-controller";
+import { Animations, Resources } from "../resources";
+import { angleDiff, linInt, radToDeg } from "../utils";
+import { Bullet } from "./bullet";
+import { CosmicBody } from "./cosmic-body";
 import { Explosion } from "./explosion";
 
 const SHIP_COLLIDER_POINTS = [vec(18, 0), vec(-11, 15), vec(-11, -15)];
@@ -25,7 +34,7 @@ export class Ship extends CosmicBody {
 
   static = false;
 
-  #controller?: ShipController;
+  #controller: ShipController;
   #shipSprite: Sprite;
 
   get controller() {
@@ -82,14 +91,14 @@ export class Ship extends CosmicBody {
 
     this.#shipSprite =
       parameters.shipSprite ?? Resources.Ship.Player.Default.toSprite();
-    this.#controller = parameters.controller;
+    this.#controller = parameters?.controller ?? new DummyController();
     this.#rotateTo = this.rotation;
   }
 
   onInitialize(_engine: Engine): void {
     super.onInitialize(_engine);
 
-    this.#controller?.onInitialize(_engine, this);
+    this.#controller.onInitialize(_engine, this);
 
     this.graphics.use(this.#shipSprite);
     this.graphics.add(this.#jetsGraphics);
@@ -105,7 +114,8 @@ export class Ship extends CosmicBody {
       if (relativeSpeed > damageBound) {
         this.takeDamage(
           relativeSpeed - damageBound,
-          other.pos.sub(this.pos).toAngle()
+          other.pos.sub(this.pos).toAngle(),
+          other
         );
       }
     });
@@ -114,7 +124,7 @@ export class Ship extends CosmicBody {
   onPostUpdate(_engine: Engine, _delta: number): void {
     super.onPostUpdate(_engine, _delta);
 
-    this.#controller?.onUpdate(_engine, _delta, this);
+    this.#controller.onUpdate(_engine, _delta, this);
 
     if (!this.static) {
       this.#updateRotation(_delta);
@@ -126,10 +136,10 @@ export class Ship extends CosmicBody {
     this.boost(false);
   }
 
-  takeDamage(amount: number, angle: number): void {
-    this.addMotion(linInt(this.speed, 50, 400, 20, 100), angle - Math.PI);
+  takeDamage(_amount: number, _angle: number, _source?: Actor): void {
+    this.addMotion(linInt(this.speed, 50, 400, 20, 100), _angle - Math.PI);
 
-    this.controller?.onTakeDamage(this, amount, angle);
+    this.controller.onTakeDamage(this, _amount, _angle, _source);
     this.scene.add(new Explosion(this.pos));
   }
 
@@ -142,6 +152,14 @@ export class Ship extends CosmicBody {
 
   rotate(angle: number, instant = false) {
     this.#rotateTo += angle;
+
+    if (instant) {
+      this.rotation = this.#rotateTo;
+    }
+  }
+
+  rotateSet(angle: number, instant = false) {
+    this.#rotateTo = angle;
 
     if (instant) {
       this.rotation = this.#rotateTo;

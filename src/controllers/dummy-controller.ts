@@ -7,12 +7,13 @@ export class DummyController implements ShipController {
     return false;
   }
 
-  onInitialize(engine: Engine, ship: Ship): void {}
-
-  onUpdate(engine: Engine, delta: number, ship: Ship): void {
-    ship.rotate(Math.PI * 0.8 * delta * 0.001);
-    ship.accelerate();
+  get isPirate(): boolean {
+    return false;
   }
 
-  onTakeDamage(ship: Ship, amount: number, angle: number): void {}
+  onInitialize(_engine: Engine, _ship: Ship): void {}
+
+  onUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
+
+  onTakeDamage(_ship: Ship, _amount: number, _angle: number): void {}
 }

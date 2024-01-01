@@ -50,7 +50,7 @@ export class CosmicBody extends Actor {
     this.kill();
   }
 
-  takeDamage(amount: number, angle: number) {}
+  takeDamage(_amount: number, _angle: number, _source?: Actor) {}
 
   addMotion(amount: number, direction = this.rotation, delta = 1) {
     this.vel = this.vel.add(Vector.fromAngle(direction).scale(amount * delta));

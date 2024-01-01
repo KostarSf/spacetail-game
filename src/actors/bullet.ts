@@ -37,7 +37,11 @@ export class Bullet extends Actor {
     this.on("collisionstart", (event) => {
       if (event.other instanceof CosmicBody && event.other !== this.#parent) {
         const cosmicBody = event.other;
-        cosmicBody.takeDamage(10, this.pos.sub(cosmicBody.pos).toAngle());
+        cosmicBody.takeDamage(
+          10,
+          this.pos.sub(cosmicBody.pos).toAngle(),
+          this.#parent
+        );
 
         this.actions.clearActions();
         this.kill();
@@ -52,9 +56,5 @@ export class Bullet extends Actor {
 
     const newScale = this.scale.x - 0.3 * (_delta / 1000);
     this.scale = vec(newScale, newScale);
-
-    if (this.isOffScreen && !this.isKilled()) {
-      this.kill();
-    }
   }
 }

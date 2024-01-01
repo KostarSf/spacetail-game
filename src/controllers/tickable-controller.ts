@@ -9,6 +9,10 @@ export abstract class TickableController implements ShipController {
     return false;
   }
 
+  get isPirate(): boolean {
+    return false;
+  }
+
   constructor(parameters?: { ticksInterval?: number }) {
     this.#ticksInterval = parameters?.ticksInterval ?? 250;
   }

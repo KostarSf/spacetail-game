@@ -1,7 +1,7 @@
-import { Engine, Sprite, vec } from "excalibur";
+import { Actor, Engine, Sprite, vec } from "excalibur";
+import { random } from "../main";
 import { getAsteroidImage } from "../resources";
 import { CosmicBody } from "./cosmic-body";
-import { random } from "../main";
 
 const ASTEROIDS_PRESETS = {
   Small: { size: 8, mass: 1, health: 5, hasItem: false },
@@ -67,7 +67,7 @@ export class Asteroid extends CosmicBody {
     }
   }
 
-  takeDamage(amount: number, angle: number): void {
+  takeDamage(amount: number, angle: number, _source?: Actor): void {
     this.addMotion((amount * 10) / this.mass, angle - Math.PI);
 
     if (this.invincible) return;

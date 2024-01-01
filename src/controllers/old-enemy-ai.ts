@@ -1,9 +1,9 @@
 import { Actor, Engine, Vector } from "excalibur";
 import { Ship } from "../actors/ship";
-import { TickableController } from "./tickable-controller";
-import { SpaceScene } from "../scenes/space";
 import { game, random } from "../main";
+import { SpaceScene } from "../scenes/space";
 import { angleDiff, clamp, degToRad, linInt, radToDeg } from "../utils";
+import { TickableController } from "./tickable-controller";
 
 export class OldEnemyAI extends TickableController {
   #behavior: "idle" | "purcuit" | "hit" | "damaged" = "idle";
@@ -22,7 +22,11 @@ export class OldEnemyAI extends TickableController {
   #ableToShoot = true;
   #targetSpotted = false;
   #canBeIdle = true;
-  #damaged = false;
+  // #damaged = false;
+
+  get isPirate(): boolean {
+    return true;
+  }
 
   constructor() {
     super({ ticksInterval: 700 });
