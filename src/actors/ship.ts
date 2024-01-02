@@ -76,6 +76,7 @@ export class Ship extends CosmicBody {
     colliderScale?: number;
     controller?: ShipController;
     shipSprite?: Sprite;
+    name?: string;
   }) {
     super(10, {
       pos: parameters.pos,
@@ -87,6 +88,7 @@ export class Ship extends CosmicBody {
           vector.scale(parameters.colliderScale ?? 1)
         ),
       }),
+      name: parameters.name || 'Ship'
     });
 
     this.#shipSprite =

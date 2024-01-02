@@ -3,7 +3,7 @@ import { Animations } from "../resources";
 
 export class Explosion extends Actor {
   constructor(pos?: Vector) {
-    super({ pos });
+    super({ pos, name: 'Explosion' });
   }
 
   onInitialize(_engine: Engine): void {

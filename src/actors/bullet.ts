@@ -12,6 +12,7 @@ export class Bullet extends Actor {
       pos: parent.pos.add(offset),
       rotation: parent.rotation,
       scale: vec(1.5, 1.5),
+      name: 'Bullet'
     });
 
     this.#parent = parent;

@@ -10,10 +10,11 @@ class Game extends Engine {
     super({
       width: 800,
       height: 600,
-      displayMode: DisplayMode.FitScreen,
+      displayMode: DisplayMode.FitContainer,
       antialiasing: false,
-      suppressPlayButton: true,
+      // suppressPlayButton: true,
       backgroundColor: Color.Black,
+      canvasElementId: 'game-canvas'
     });
   }
 

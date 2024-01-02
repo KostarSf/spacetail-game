@@ -10,6 +10,7 @@ import { Explosion } from "./explosion";
 
 export class CosmicBody extends Actor {
   invincible = false;
+  noClip = false;
 
   #mass: number;
   get mass() {
@@ -21,7 +22,8 @@ export class CosmicBody extends Actor {
       radius: 10,
       color: Color.Chartreuse,
       collisionType: CollisionType.Passive,
-    };
+      name: 'CosmicBody',
+    } ;
 
     super(Object.assign(initialActorConfig, actorConfig));
     this.#mass = mass;
@@ -31,6 +33,8 @@ export class CosmicBody extends Actor {
     this.on("precollision", (event) => {
       if (!(event.other instanceof CosmicBody)) return;
       const other = event.other;
+
+      if (this.noClip || other.noClip) return;
 
       const direction = this.pos.sub(other.pos);
       const speed = this.vel.distance();
@@ -46,9 +50,13 @@ export class CosmicBody extends Actor {
 
   /** Destroy this cosmic body and emit explosion */
   destroy(): void {
+    if (!this.isKilled()) this.onPreDestroy();
+
     this.scene.add(new Explosion(this.pos));
     this.kill();
   }
+
+  protected onPreDestroy() {}
 
   takeDamage(_amount: number, _angle: number, _source?: Actor) {}
 

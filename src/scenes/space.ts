@@ -12,7 +12,6 @@ import { Ship } from "../actors/ship";
 import { PlayerController } from "../controllers/player-controller";
 import { HunterAI } from "../controllers/hunter-ai";
 import { Resources } from "../resources";
-import { OldEnemyAI } from "../controllers/old-enemy-ai";
 
 export class SpaceScene extends Scene {
   static key = "spacescene";
@@ -37,6 +36,7 @@ export class SpaceScene extends Scene {
       pos: vec(150, 150),
       controller: new PlayerController(),
       colliderScale: 0.65,
+      name: "Player",
     });
 
     this.add(player);
@@ -54,9 +54,7 @@ export class SpaceScene extends Scene {
       );
     });
 
-    Asteroid.randomSpawn(5).forEach((asteroid) => {
-      this.add(asteroid);
-    });
+    Asteroid.randomSpawn(100, this);
 
     this.camera.strategy.elasticToActor(player, 0.5, 0.1);
     this.camera.pos = player.pos;
@@ -81,11 +79,11 @@ export class SpaceScene extends Scene {
     engine.currentScene.add(this.#starsParticles);
   }
 
-  onPostUpdate(engine: Engine, _delta: number): void {
+  onPostUpdate(_engine: Engine, _delta: number): void {
     if (!this.#player) return;
 
     this.#starsParticles.transform.pos = this.#player.pos.sub(
-      vec(engine.halfDrawWidth, engine.halfDrawHeight)
+      vec(_engine.halfDrawWidth, _engine.halfDrawHeight)
     );
   }
 }
