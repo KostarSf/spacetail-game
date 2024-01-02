@@ -4,10 +4,10 @@ import { Ship } from "../actors/ship";
 import { ShipController } from "./ship-controller";
 
 export class PlayerController implements ShipController {
-  #inputType: "keyboard" | "mouse";
+  // #inputType: "keyboard" | "mouse";
 
   constructor() {
-    this.#inputType = "mouse";
+    // this.#inputType = "mouse";
   }
 
   get isPlayer(): boolean {
@@ -20,7 +20,7 @@ export class PlayerController implements ShipController {
 
   onInitialize(_engine: Engine, _ship: Ship): void {
     _engine.input.pointers.on("move", (e) => {
-      this.#inputType = "mouse";
+      // this.#inputType = "mouse";
       _ship.rotateTo(e.worldPos, true);
     });
 
@@ -57,12 +57,12 @@ export class PlayerController implements ShipController {
 
     let rotation = 0;
     if (engine.input.keyboard.isHeld(Keys.A)) {
-      this.#inputType = "keyboard";
+      // this.#inputType = "keyboard";
       rotation -= 1;
     }
 
     if (engine.input.keyboard.isHeld(Keys.D)) {
-      this.#inputType = "keyboard";
+      // this.#inputType = "keyboard";
       rotation += 1;
     }
 
