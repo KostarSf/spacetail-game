@@ -1,1 +1,1 @@
-# space-tail-game
+# spacetail-game
