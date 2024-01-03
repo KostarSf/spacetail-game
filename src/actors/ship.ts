@@ -78,21 +78,27 @@ export class Ship extends CosmicBody {
     shipSprite?: Sprite;
     name?: string;
   }) {
-    super(10, {
-      pos: parameters.pos,
-      width: 32,
-      height: 32,
-      color: Color.Orange,
-      collider: new PolygonCollider({
-        points: SHIP_COLLIDER_POINTS.map((vector) =>
-          vector.scale(parameters.colliderScale ?? 1)
-        ),
-      }),
-      name: parameters.name || "Ship",
-    });
-
-    this.#shipSprite =
+    const shipSprite =
       parameters.shipSprite ?? Resources.Ship.Player.Default.toSprite();
+
+    super(
+      10,
+      {
+        pos: parameters.pos,
+        width: 32,
+        height: 32,
+        color: Color.Orange,
+        collider: new PolygonCollider({
+          points: SHIP_COLLIDER_POINTS.map((vector) =>
+            vector.scale(parameters.colliderScale ?? 1)
+          ),
+        }),
+        name: parameters.name || "Ship",
+      },
+      shipSprite
+    );
+
+    this.#shipSprite = shipSprite;
     this.#controller = parameters?.controller ?? new DummyController();
     this.#rotateTo = this.rotation;
   }
@@ -132,8 +138,6 @@ export class Ship extends CosmicBody {
   onPostUpdate(_engine: Engine, _delta: number): void {
     super.onPostUpdate(_engine, _delta);
 
-    this.#controller.onPostUpdate(_engine, _delta, this);
-
     if (!this.static) {
       this.#updateRotation(_delta);
       this.#updateMotion(_delta);
@@ -142,6 +146,8 @@ export class Ship extends CosmicBody {
 
     this.accelerate(false);
     this.boost(false);
+
+    this.#controller.onPostUpdate(_engine, _delta, this);
   }
 
   takeDamage(_amount: number, _angle: number, _source?: Actor): void {

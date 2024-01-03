@@ -29,13 +29,17 @@ export class Asteroid extends CosmicBody {
   #size: number;
 
   constructor(parameters: AsteroidParameters, sprite: Sprite) {
-    super(parameters.mass, {
-      radius: parameters.size,
-      vel: vec(random.floating(-10, 10), random.floating(-10, 10)),
-      angularVelocity: random.floating(-Math.PI / 4, Math.PI / 4),
-      rotation: random.floating(0, 2 * Math.PI),
-      name: `Asteroid (${parameters.type})`,
-    });
+    super(
+      parameters.mass,
+      {
+        radius: parameters.size,
+        vel: vec(random.floating(-10, 10), random.floating(-10, 10)),
+        angularVelocity: random.floating(-Math.PI / 4, Math.PI / 4),
+        rotation: random.floating(0, 2 * Math.PI),
+        name: `Asteroid (${parameters.type})`,
+      },
+      sprite
+    );
 
     this.#sprite = sprite;
     this.#health = parameters.health;
