@@ -93,6 +93,15 @@ export class PlayerController implements ShipController {
   }
 
   #updateHealthLine(_ship: Ship) {
+    const color =
+      this.#health < 2
+        ? Color.Red
+        : this.#health < 3
+        ? Color.Yellow
+        : Color.Green;
+
+    this.#healthLine.color = color;
+
     const amount = linInt(this.#health, 0, this.#maxHealth);
 
     this.#healthLine.rotation = -_ship.rotation;
