@@ -88,7 +88,7 @@ export class Ship extends CosmicBody {
           vector.scale(parameters.colliderScale ?? 1)
         ),
       }),
-      name: parameters.name || 'Ship'
+      name: parameters.name || "Ship",
     });
 
     this.#shipSprite =
@@ -99,8 +99,6 @@ export class Ship extends CosmicBody {
 
   onInitialize(_engine: Engine): void {
     super.onInitialize(_engine);
-
-    this.#controller.onInitialize(_engine, this);
 
     this.graphics.use(this.#shipSprite);
     this.graphics.add(this.#jetsGraphics);
@@ -115,18 +113,26 @@ export class Ship extends CosmicBody {
 
       if (relativeSpeed > damageBound) {
         this.takeDamage(
-          relativeSpeed - damageBound,
+          (relativeSpeed - damageBound) * (other.mass / this.mass) * 0.1,
           other.pos.sub(this.pos).toAngle(),
           other
         );
       }
     });
+
+    this.#controller.onInitialize(_engine, this);
+  }
+
+  onPreUpdate(_engine: Engine, _delta: number): void {
+    super.onPreUpdate(_engine, _delta);
+
+    this.#controller.onPreUpdate(_engine, _delta, this);
   }
 
   onPostUpdate(_engine: Engine, _delta: number): void {
     super.onPostUpdate(_engine, _delta);
 
-    this.#controller.onUpdate(_engine, _delta, this);
+    this.#controller.onPostUpdate(_engine, _delta, this);
 
     if (!this.static) {
       this.#updateRotation(_delta);
@@ -139,6 +145,8 @@ export class Ship extends CosmicBody {
   }
 
   takeDamage(_amount: number, _angle: number, _source?: Actor): void {
+    super.takeDamage(_amount, _angle, _source);
+
     this.addMotion(linInt(this.speed, 50, 400, 20, 100), _angle - Math.PI);
 
     this.controller.onTakeDamage(this, _amount, _angle, _source);
@@ -146,6 +154,8 @@ export class Ship extends CosmicBody {
   }
 
   fire() {
+    if (!this.scene) return;
+
     const bulletAnchor = Vector.fromAngle(this.rotation).scale(16);
     const bullet = new Bullet(this, bulletAnchor);
 

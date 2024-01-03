@@ -1,13 +1,38 @@
-import { Engine, Keys } from "excalibur";
+import { Color, Engine, Keys, Line, vec } from "excalibur";
 import { CosmicBody } from "../actors/cosmic-body";
 import { Ship } from "../actors/ship";
 import { ShipController } from "./ship-controller";
+import { clamp, linInt } from "../utils";
 
 export class PlayerController implements ShipController {
   // #inputType: "keyboard" | "mouse";
 
+  #maxHealth = 4;
+  #health = this.#maxHealth;
+  #healthLine: Line;
+
+  #fireCost = 35;
+
+  #maxEnergy = 100;
+  #energy = this.#maxEnergy;
+  #energyLine: Line;
+
   constructor() {
     // this.#inputType = "mouse";
+
+    this.#healthLine = new Line({
+      start: vec(0, -20),
+      end: vec(40, -20),
+      color: Color.Green,
+      thickness: 3,
+    });
+
+    this.#energyLine = new Line({
+      start: vec(0, -24),
+      end: vec(40, -24),
+      color: Color.Cyan,
+      thickness: 3,
+    });
   }
 
   get isPlayer(): boolean {
@@ -25,8 +50,16 @@ export class PlayerController implements ShipController {
     });
 
     _engine.input.pointers.primary.on("down", () => {
-      _engine.currentScene.camera.shake(2, 2, 100);
-      _ship.fire();
+      if (_ship.isKilled()) return;
+
+      const newValue = this.#energy - this.#fireCost;
+
+      if (newValue >= 0) {
+        this.#energy = newValue;
+
+        _engine.currentScene.camera.shake(2, 2, 100);
+        _ship.fire();
+      }
     });
 
     _ship.on("precollision", (e) => {
@@ -34,14 +67,47 @@ export class PlayerController implements ShipController {
         _engine.currentScene.camera.shake(4, 4, 100);
       }
     });
+
+    _ship.graphics.add(this.#healthLine);
+    _ship.graphics.add(this.#energyLine);
   }
 
   onTakeDamage(_ship: Ship, _amount: number, _angle: number): void {
     _ship.scene.camera.shake(5, 5, 500);
+
+    this.#energy -= this.#maxEnergy;
+    this.#health -= 1;
+
+    if (this.#health <= 0) {
+      _ship.destroy();
+    }
   }
 
-  onUpdate(_engine: Engine, _delta: number, _ship: Ship): void {
+  onPreUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
+
+  onPostUpdate(_engine: Engine, _delta: number, _ship: Ship): void {
+    this.#updateHealthLine(_ship);
+    this.#updateEnergyLine(_ship, _delta);
+
     this.#applyPlayerInput(_engine, _delta, _ship);
+  }
+
+  #updateHealthLine(_ship: Ship) {
+    const amount = linInt(this.#health, 0, this.#maxHealth);
+
+    this.#healthLine.rotation = -_ship.rotation;
+    this.#healthLine.end.x = 40 * amount;
+  }
+
+  #updateEnergyLine(_ship: Ship, _delta: number) {
+    const lowEnergy = this.#energy < this.#fireCost;
+    this.#energyLine.color = lowEnergy ? Color.Red : Color.Cyan;
+
+    const speed = lowEnergy ? 5 : 15;
+    this.#energy = clamp(this.#energy + speed / _delta, 0, this.#maxEnergy);
+
+    this.#energyLine.rotation = -_ship.rotation;
+    this.#energyLine.end.x = 40 * linInt(this.#energy, 0, this.#maxEnergy);
   }
 
   #applyPlayerInput(engine: Engine, delta: number, ship: Ship) {

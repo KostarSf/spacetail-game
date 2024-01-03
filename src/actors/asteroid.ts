@@ -86,12 +86,14 @@ export class Asteroid extends CosmicBody {
     }
   }
 
-  takeDamage(amount: number, angle: number, _source?: Actor): void {
-    this.addMotion((amount * 10) / this.mass, angle - Math.PI);
+  takeDamage(_amount: number, _angle: number, _source?: Actor): void {
+    super.takeDamage(_amount, _angle, _source);
+
+    this.addMotion((_amount * 10) / this.mass, _angle - Math.PI);
 
     if (this.invincible) return;
 
-    this.#health -= amount;
+    this.#health -= _amount;
 
     if (this.#health <= 0) {
       this.destroy();

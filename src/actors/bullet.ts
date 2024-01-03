@@ -1,21 +1,24 @@
 import { Actor, Engine, Vector, vec } from "excalibur";
 import { Animations } from "../resources";
 import { CosmicBody } from "./cosmic-body";
+import { linInt } from "../utils";
 
 export class Bullet extends Actor {
   #parent: Actor;
+  #baseDamage: number;
 
-  constructor(parent: Actor, offset = vec(0, 0)) {
+  constructor(parent: Actor, offset = vec(0, 0), baseDamage = 10) {
     super({
       width: 8,
       height: 6,
       pos: parent.pos.add(offset),
       rotation: parent.rotation,
       scale: vec(1.5, 1.5),
-      name: 'Bullet'
+      name: "Bullet",
     });
 
     this.#parent = parent;
+    this.#baseDamage = baseDamage;
   }
 
   onInitialize(_engine: Engine): void {
@@ -38,8 +41,15 @@ export class Bullet extends Actor {
     this.on("collisionstart", (event) => {
       if (event.other instanceof CosmicBody && event.other !== this.#parent) {
         const cosmicBody = event.other;
+
+        const speed = this.vel.distance();
+        const damage = this.#baseDamage + linInt(speed, 300, 700, 0, 5);
+
+        // Переделать, чтобы урон зависел от относительной скорости
+        // между пулей и целью
+
         cosmicBody.takeDamage(
-          10,
+          damage,
           this.pos.sub(cosmicBody.pos).toAngle(),
           this.#parent
         );

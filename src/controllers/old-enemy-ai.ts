@@ -95,7 +95,7 @@ export class OldEnemyAI extends TickableController {
     }
   }
 
-  onUpdate(_engine: Engine, _delta: number, _ship: Ship): void {
+  onPostUpdate(_engine: Engine, _delta: number, _ship: Ship): void {
     this.#steps++;
 
     if (!this.#chasingTarget) return;

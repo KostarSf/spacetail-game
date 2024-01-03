@@ -34,7 +34,9 @@ export abstract class TickableController implements ShipController {
 
   onTick(_engine: Engine, _ship: Ship) {}
 
-  onUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
+  onPreUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
+
+  onPostUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
 
   onTakeDamage(_ship: Ship, _amount: number, _angle: number): void {}
 }

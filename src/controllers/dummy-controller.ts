@@ -13,7 +13,9 @@ export class DummyController implements ShipController {
 
   onInitialize(_engine: Engine, _ship: Ship): void {}
 
-  onUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
+  onPreUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
+
+  onPostUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
 
   onTakeDamage(_ship: Ship, _amount: number, _angle: number): void {}
 }

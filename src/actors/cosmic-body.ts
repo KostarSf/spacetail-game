@@ -7,6 +7,7 @@ import {
   Vector,
 } from "excalibur";
 import { Explosion } from "./explosion";
+import { HitLabel } from "./hit-label";
 
 export class CosmicBody extends Actor {
   invincible = false;
@@ -22,8 +23,8 @@ export class CosmicBody extends Actor {
       radius: 10,
       color: Color.Chartreuse,
       collisionType: CollisionType.Passive,
-      name: 'CosmicBody',
-    } ;
+      name: "CosmicBody",
+    };
 
     super(Object.assign(initialActorConfig, actorConfig));
     this.#mass = mass;
@@ -58,7 +59,9 @@ export class CosmicBody extends Actor {
 
   protected onPreDestroy() {}
 
-  takeDamage(_amount: number, _angle: number, _source?: Actor) {}
+  takeDamage(_amount: number, _angle: number, _source?: Actor) {
+    HitLabel.create(this, _amount);
+  }
 
   addMotion(amount: number, direction = this.rotation, delta = 1) {
     this.vel = this.vel.add(Vector.fromAngle(direction).scale(amount * delta));
