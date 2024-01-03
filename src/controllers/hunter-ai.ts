@@ -21,7 +21,7 @@ export class HunterAI extends TickableController {
   #avadingRadius = 40;
 
   #midRangeTrigger: Actor;
-  #midRangeRadius = 200;
+  #midRangeRadius = 150;
 
   #maxHealth = 100;
   #health = this.#maxHealth;

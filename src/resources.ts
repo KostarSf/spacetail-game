@@ -44,6 +44,9 @@ const Resources = {
     Explosion: new ImageSource("/assets/images/dynamics/explosion.png"),
     JetStream: new ImageSource("/assets/images/ship/jet_stream.png"),
   },
+  Items: {
+    RepairItem: new ImageSource("/assets/images/items/repair-item.png"),
+  },
 };
 
 function getAsteroidImage(
@@ -122,6 +125,7 @@ class GameLoader extends Loader {
       ...Object.values(Resources.Asteroid).flat(),
       ...Object.values(Resources.Particle),
       ...Object.values(Resources.Dynamic),
+      ...Object.values(Resources.Items),
     ]);
 
     this.backgroundColor = "#000";

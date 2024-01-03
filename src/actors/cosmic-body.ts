@@ -4,15 +4,14 @@ import {
   CollisionType,
   Color,
   Engine,
-  ExcaliburGraphicsContext,
   Sprite,
   Vector,
-  vec,
 } from "excalibur";
 import { Explosion } from "./explosion";
 import { HitLabel } from "./hit-label";
+import { StyledActor, StyledActorArgs } from "./styled-actor";
 
-export abstract class CosmicBody extends Actor {
+export abstract class CosmicBody extends StyledActor {
   invincible = false;
   noClip = false;
 
@@ -21,19 +20,17 @@ export abstract class CosmicBody extends Actor {
     return this.#mass;
   }
 
-  #shadow?: Sprite;
-
   constructor(mass: number, actorConfig?: ActorArgs, shadow?: Sprite) {
-    const initialActorConfig: ActorArgs = {
+    const initialActorConfig: StyledActorArgs = {
       radius: 10,
       color: Color.Chartreuse,
       collisionType: CollisionType.Passive,
       name: "CosmicBody",
+      shadowSprite: shadow?.clone(),
     };
 
     super(Object.assign(initialActorConfig, actorConfig));
     this.#mass = mass;
-    this.#shadow = shadow?.clone();
   }
 
   onInitialize(_engine: Engine): void {
@@ -53,9 +50,6 @@ export abstract class CosmicBody extends Actor {
 
       other.vel = other.vel.add(force.scale(-1 / other.mass));
     });
-
-    this.graphics.onPreDraw = (ctx, delta) => this.onPreDraw(ctx, delta);
-    this.graphics.onPostDraw = (ctx, delta) => this.onPostDraw(ctx, delta);
   }
 
   /** Destroy this cosmic body and emit explosion */
@@ -75,28 +69,4 @@ export abstract class CosmicBody extends Actor {
   addMotion(amount: number, direction = this.rotation, delta = 1) {
     this.vel = this.vel.add(Vector.fromAngle(direction).scale(amount * delta));
   }
-
-  protected onPreDraw(ctx: ExcaliburGraphicsContext, _delta: number) {
-    const shadow = this.#shadow;
-    if (!shadow) return;
-
-    const shadowOffset = 4;
-
-    const origin = vec(-shadow.width / 2, -shadow.height / 2);
-    const shadowOrigin = origin
-      .add(vec(0, shadowOffset))
-      .rotate(-this.rotation, origin);
-
-    const transform = ctx.getTransform();
-    const initialScale = transform.getScale();
-
-    ctx.tint = Color.fromRGB(50, 50, 50);
-    ctx.scale(0.94, 0.94);
-    ctx.drawImage(shadow.image.image, shadowOrigin.x, shadowOrigin.y);
-
-    transform.setScale(initialScale);
-    ctx.tint = Color.White;
-  }
-
-  protected onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {}
 }

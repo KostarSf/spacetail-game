@@ -33,7 +33,7 @@ export class SpaceScene extends Scene {
     engine.backgroundColor = Color.Black;
 
     const player = new Ship({
-      pos: vec(150, 150),
+      pos: vec(150, 180),
       controller: new PlayerController(),
       colliderScale: 0.65,
       name: "Player",
@@ -42,7 +42,7 @@ export class SpaceScene extends Scene {
     this.add(player);
     this.#player = player;
 
-    const hostileSpawns = [vec(50, -50), vec(150, 0), vec(250, -50)];
+    const hostileSpawns = [vec(50, -50), vec(150, -100), vec(250, -50)];
 
     hostileSpawns.forEach((pos) => {
       this.add(
