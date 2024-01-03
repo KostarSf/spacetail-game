@@ -91,12 +91,12 @@ export class HunterAI extends TickableController {
 
       if (other instanceof Ship) {
         if (other.controller.isPlayer && !this.#currentTarget) {
-          this.#updateTarget(_ship, other);
+          this.#updateTarget(other);
         } else if (
           this.#primaryTarget &&
           other.controller instanceof HunterAI
         ) {
-          other.controller.#updateTarget(other, this.#primaryTarget);
+          other.controller.#updateTarget(this.#primaryTarget);
         }
       }
     });
@@ -250,7 +250,7 @@ export class HunterAI extends TickableController {
     }
 
     if (_source && !_source.isKilled()) {
-      this.#updateTarget(_ship, _source);
+      this.#updateTarget(_source);
     }
   }
 
@@ -258,7 +258,7 @@ export class HunterAI extends TickableController {
     this.#health = Math.min(this.#health + _amount, this.#maxHealth);
   }
 
-  #updateTarget(ship: Ship, source: Actor) {
+  #updateTarget(source: Actor) {
     const newTarget =
       !this.#currentTarget || random.d10() === 1 ? source : null;
 
