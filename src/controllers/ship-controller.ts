@@ -17,4 +17,6 @@ export interface ShipController {
     _angle: number,
     _source?: Actor
   ): void;
+
+  onRepair(_ship: Ship, _amount: number): void;
 }

@@ -18,4 +18,6 @@ export class DummyController implements ShipController {
   onPostUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
 
   onTakeDamage(_ship: Ship, _amount: number, _angle: number): void {}
+
+  onRepair(_ship: Ship, _amount: number): void {}
 }

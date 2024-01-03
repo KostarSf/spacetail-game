@@ -83,6 +83,14 @@ export class PlayerController implements ShipController {
     }
   }
 
+  onRepair(_ship: Ship, _amount: number): void {
+    this.#health = Math.min(this.#health + 1, this.#maxHealth);
+    this.#energy = Math.min(
+      this.#energy + this.#maxEnergy / 2,
+      this.#maxEnergy
+    );
+  }
+
   onPreUpdate(_engine: Engine, _delta: number, _ship: Ship): void {}
 
   onPostUpdate(_engine: Engine, _delta: number, _ship: Ship): void {

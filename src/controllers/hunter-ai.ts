@@ -1,9 +1,11 @@
 import { Actor, CollisionType, Color, Engine, Line, vec } from "excalibur";
 import { CosmicBody } from "../actors/cosmic-body";
 import { Ship } from "../actors/ship";
-import { game, random } from "../main";
+import { random } from "../main";
 import { linInt } from "../utils";
 import { TickableController } from "./tickable-controller";
+import { Asteroid } from "../actors/asteroid";
+import { Item } from "../actors/items/item";
 
 export class HunterAI extends TickableController {
   #primaryTarget?: Actor | null;
@@ -13,9 +15,13 @@ export class HunterAI extends TickableController {
   #boost = false;
 
   #nearestObstacles = new Set<Actor>();
+  #nearestValuables = new Set<Actor>();
 
   #avadingObstaclesTrigger: Actor;
   #avadingRadius = 40;
+
+  #midRangeTrigger: Actor;
+  #midRangeRadius = 200;
 
   #maxHealth = 100;
   #health = this.#maxHealth;
@@ -36,6 +42,11 @@ export class HunterAI extends TickableController {
       collisionType: CollisionType.Passive,
     });
 
+    this.#midRangeTrigger = new Actor({
+      radius: this.#midRangeRadius,
+      collisionType: CollisionType.Passive,
+    });
+
     this.#healthLine = new Line({
       start: vec(0, -20),
       end: vec(40, -20),
@@ -48,6 +59,8 @@ export class HunterAI extends TickableController {
     super.onInitialize(_engine, _ship);
 
     _ship.addChild(this.#avadingObstaclesTrigger);
+    _ship.addChild(this.#midRangeTrigger);
+
     _ship.graphics.add(this.#healthLine);
 
     this.#avadingObstaclesTrigger.on("collisionstart", (e) => {
@@ -61,14 +74,73 @@ export class HunterAI extends TickableController {
         this.#nearestObstacles.delete(e.other);
       }
     });
+
+    this.#midRangeTrigger.on("collisionstart", (e) => {
+      const other = e.other;
+
+      if (
+        (other instanceof Asteroid && other.type === "Item") ||
+        other instanceof Item
+      ) {
+        this.#nearestValuables.add(other);
+      }
+    });
+
+    this.#midRangeTrigger.on("precollision", (e) => {
+      const other = e.other;
+
+      if (other instanceof Ship) {
+        if (other.controller.isPlayer && !this.#currentTarget) {
+          this.#updateTarget(_ship, other);
+        } else if (
+          this.#primaryTarget &&
+          other.controller instanceof HunterAI
+        ) {
+          other.controller.#updateTarget(other, this.#primaryTarget);
+        }
+      }
+    });
+
+    this.#midRangeTrigger.on("collisionend", (e) => {
+      if (
+        (e.other instanceof Asteroid && e.other.type === "Item") ||
+        e.other instanceof Item
+      ) {
+        this.#nearestValuables.delete(e.other);
+      }
+    });
   }
 
   onTick(_engine: Engine, _ship: Ship) {
+    if (
+      !(this.#currentTarget instanceof Item) &&
+      (!(this.#currentTarget instanceof Ship) ||
+        this.#health < this.#maxHealth / 2)
+    ) {
+      for (const valuable of this.#nearestValuables) {
+        if (valuable.isKilled()) {
+          this.#nearestValuables.delete(valuable);
+          continue;
+        }
+
+        if (
+          valuable instanceof Asteroid &&
+          this.#currentTarget instanceof Asteroid
+        ) {
+          continue;
+        }
+
+        this.#currentTarget = valuable;
+        break;
+      }
+    }
+
     if (!this.#currentTarget || this.#currentTarget.isKilled()) {
       if (
         !this.#primaryTarget ||
         this.#primaryTarget.isKilled() ||
-        this.#currentTarget === this.#primaryTarget
+        this.#currentTarget === this.#primaryTarget ||
+        this.#currentTarget === _ship
       ) {
         this.#primaryTarget = null;
         this.#currentTarget = null;
@@ -100,17 +172,31 @@ export class HunterAI extends TickableController {
   #chasing(_ship: Ship, _target: Actor) {
     const distance = _ship.pos.distance(_target.pos);
 
-    this.#accelerate = distance > 200;
-    this.#boost = distance > 300;
-
     _ship.speedMultiplier =
       distance < 500
         ? linInt(distance, 200, 500, 1, 1.1)
         : linInt(distance, 500, 800, 1.1, 1.3);
 
-    const dice = distance < 200 ? random.d20() : random.d10();
-    if (distance < 300 && dice === 1) {
-      _ship.fire();
+    this.#boost = distance > 300;
+
+    if (this.#currentTarget instanceof Ship) {
+      this.#accelerate = distance > 200;
+
+      const dice = distance < 200 ? random.d20() : random.d10();
+      if (distance < 300 && dice === 1) {
+        _ship.fire();
+      }
+    } else {
+      this.#accelerate =
+        this.#currentTarget instanceof Item ? distance > 50 : distance > 100;
+
+      if (
+        this.#currentTarget instanceof Asteroid &&
+        distance < 300 &&
+        random.d4() === 1
+      ) {
+        _ship.fire();
+      }
     }
 
     if (distance > 100) {
@@ -138,17 +224,6 @@ export class HunterAI extends TickableController {
         0.001
       );
       _ship.addMotion(Math.max(_ship.speed, 7) * multiplier, direction, _delta);
-
-      if (obstacle instanceof Ship) {
-        if (obstacle.controller.isPlayer && !this.#currentTarget) {
-          this.#updateTarget(_ship, obstacle);
-        } else if (
-          this.#primaryTarget &&
-          obstacle.controller instanceof HunterAI
-        ) {
-          obstacle.controller.#updateTarget(obstacle, this.#primaryTarget);
-        }
-      }
     });
   }
 
@@ -179,38 +254,16 @@ export class HunterAI extends TickableController {
     }
   }
 
+  onRepair(_ship: Ship, _amount: number): void {
+    this.#health = Math.min(this.#health + _amount, this.#maxHealth);
+  }
+
   #updateTarget(ship: Ship, source: Actor) {
     const newTarget =
       !this.#currentTarget || random.d10() === 1 ? source : null;
 
     if (newTarget) {
       this.#currentTarget = newTarget;
-
-      if (newTarget instanceof Ship && !newTarget.controller.isPirate) {
-        this.#alertNearesPirates(ship, newTarget);
-      }
     }
-  }
-
-  #alertNearesPirates(_ship: Ship, target: Actor) {
-    game.currentScene.actors.forEach((actor) => {
-      if (
-        !(actor instanceof Ship) ||
-        !actor.controller.isPirate ||
-        actor === _ship
-      ) {
-        return;
-      }
-
-      const pirateController = actor.controller;
-      if (!(pirateController instanceof HunterAI)) {
-        return;
-      }
-
-      const distance = _ship.pos.distance(actor.pos);
-      if (distance < 300) {
-        pirateController.#currentTarget = target;
-      }
-    });
   }
 }

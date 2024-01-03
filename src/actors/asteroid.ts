@@ -2,6 +2,7 @@ import { Actor, Color, Engine, Scene, Sprite, Timer, vec } from "excalibur";
 import { game, random } from "../main";
 import { getAsteroidImage } from "../resources";
 import { CosmicBody } from "./cosmic-body";
+import { RepairItem } from "./items/repair-item";
 
 const ASTEROIDS_PRESETS = {
   Small: { size: 8, mass: 1, health: 5, hasItem: false, type: "Small" },
@@ -23,6 +24,9 @@ export class Asteroid extends CosmicBody {
   static SPAWN_OFFSET = 2000;
 
   #type: AsteroidType;
+  get type() {
+    return this.#type;
+  }
 
   #sprite: Sprite;
   #health: number;
@@ -129,6 +133,10 @@ export class Asteroid extends CosmicBody {
 
         this.scene.add(asteroid);
       }
+    }
+
+    if (this.#type === "Item") {
+      this.scene.add(new RepairItem(this.pos));
     }
   }
 
