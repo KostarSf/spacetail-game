@@ -1,17 +1,8 @@
-import {
-  Actor,
-  ActorArgs,
-  CollisionType,
-  Color,
-  Engine,
-  Sprite,
-  Vector,
-} from "excalibur";
+import { Actor, ActorArgs, CollisionType, Color, Engine, Vector } from "excalibur";
 import { Explosion } from "./explosion";
 import { HitLabel } from "./hit-label";
-import { StyledActor, StyledActorArgs } from "./styled-actor";
 
-export abstract class CosmicBody extends StyledActor {
+export abstract class CosmicBody extends Actor {
   invincible = false;
   noClip = false;
 
@@ -20,13 +11,12 @@ export abstract class CosmicBody extends StyledActor {
     return this.#mass;
   }
 
-  constructor(mass: number, actorConfig?: ActorArgs, shadow?: Sprite) {
-    const initialActorConfig: StyledActorArgs = {
+  constructor(mass: number, actorConfig?: ActorArgs) {
+    const initialActorConfig: ActorArgs = {
       radius: 10,
       color: Color.Chartreuse,
       collisionType: CollisionType.Passive,
       name: "CosmicBody",
-      shadowSprite: shadow?.clone(),
     };
 
     super(Object.assign(initialActorConfig, actorConfig));
@@ -44,9 +34,7 @@ export abstract class CosmicBody extends StyledActor {
       const speed = this.vel.distance();
       const force = direction.scale(speed * 0.008);
 
-      this.vel = this.vel
-        .add(force.add(other.vel.scale(0.2 / this.mass)))
-        .scale(0.9);
+      this.vel = this.vel.add(force.add(other.vel.scale(0.2 / this.mass))).scale(0.9);
 
       other.vel = other.vel.add(force.scale(-1 / other.mass));
     });

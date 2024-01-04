@@ -1,12 +1,4 @@
-import {
-  Actor,
-  Color,
-  EmitterType,
-  Engine,
-  ParticleEmitter,
-  Scene,
-  vec,
-} from "excalibur";
+import { Actor, Color, EmitterType, Engine, ParticleEmitter, Scene, vec } from "excalibur";
 import { Asteroid } from "../actors/asteroid";
 import { Ship } from "../actors/ship";
 import { PlayerController } from "../controllers/player-controller";
@@ -49,7 +41,7 @@ export class SpaceScene extends Scene {
         new Ship({
           pos,
           controller: new HunterAI(),
-          shipSprite: Resources.Ship.Pirate.Default.toSprite(),
+          shipImage: Resources.Ship.Pirate.Default,
         })
       );
     });

@@ -1,9 +1,8 @@
-import { CollisionType, Color, Engine, Sprite, Vector } from "excalibur";
+import { Actor, CollisionType, Color, Engine, Sprite, Vector } from "excalibur";
 import { Ship } from "../ship";
 import { random } from "../../main";
-import { StyledActor } from "../styled-actor";
 
-export abstract class Item extends StyledActor {
+export abstract class Item extends Actor {
   #sprite?: Sprite;
 
   constructor(parameters: { sprite?: Sprite; pos?: Vector }) {
@@ -13,7 +12,6 @@ export abstract class Item extends StyledActor {
       radius: 16,
       color: Color.Green,
       collisionType: CollisionType.Passive,
-      shadowSprite: parameters.sprite,
     });
 
     this.#sprite = parameters.sprite;

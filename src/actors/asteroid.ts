@@ -3,6 +3,7 @@ import { game, random } from "../main";
 import { getAsteroidImage } from "../resources";
 import { CosmicBody } from "./cosmic-body";
 import { RepairItem } from "./items/repair-item";
+import { ShadowedSprite } from "../graphics/shadowed-sprite";
 
 const ASTEROIDS_PRESETS = {
   Small: { size: 8, mass: 1, health: 5, hasItem: false, type: "Small" },
@@ -33,17 +34,13 @@ export class Asteroid extends CosmicBody {
   #size: number;
 
   constructor(parameters: AsteroidParameters, sprite: Sprite) {
-    super(
-      parameters.mass,
-      {
-        radius: parameters.size,
-        vel: vec(random.floating(-30, 30), random.floating(-30, 30)),
-        angularVelocity: random.floating(-Math.PI / 3, Math.PI / 3),
-        rotation: random.floating(0, 2 * Math.PI),
-        name: `Asteroid (${parameters.type})`,
-      },
-      sprite
-    );
+    super(parameters.mass, {
+      radius: parameters.size,
+      vel: vec(random.floating(-30, 30), random.floating(-30, 30)),
+      angularVelocity: random.floating(-Math.PI / 3, Math.PI / 3),
+      rotation: random.floating(0, 2 * Math.PI),
+      name: `Asteroid (${parameters.type})`,
+    });
 
     this.#sprite = sprite;
     this.#health = parameters.health;
@@ -111,8 +108,7 @@ export class Asteroid extends CosmicBody {
   protected onPreDestroy(): void {
     if (this.#type === "Large" || this.#type === "Medium") {
       const piecesCount = random.integer(0, 2);
-      const piecesType: AsteroidType =
-        this.#type === "Large" ? "Medium" : "Small";
+      const piecesType: AsteroidType = this.#type === "Large" ? "Medium" : "Small";
 
       for (let i = 0; i < piecesCount; i++) {
         const asteroid = Asteroid.create(piecesType);
@@ -126,9 +122,7 @@ export class Asteroid extends CosmicBody {
               random.integer(-this.#size / 2, this.#size / 2)
             )
           );
-        asteroid.vel = asteroid.vel.add(
-          this.vel.clone().rotate(random.floating(-angle, angle))
-        );
+        asteroid.vel = asteroid.vel.add(this.vel.clone().rotate(random.floating(-angle, angle)));
         asteroid.noClip = true;
 
         this.scene.add(asteroid);
@@ -164,7 +158,7 @@ export class Asteroid extends CosmicBody {
 
   static create(type: AsteroidType) {
     const preset = ASTEROIDS_PRESETS[type];
-    const sprite = getAsteroidImage(type).toSprite();
+    const sprite = ShadowedSprite.from(getAsteroidImage(type));
 
     return new Asteroid(preset, sprite);
   }

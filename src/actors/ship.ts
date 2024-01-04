@@ -1,12 +1,4 @@
-import {
-  Actor,
-  Color,
-  Engine,
-  PolygonCollider,
-  Sprite,
-  Vector,
-  vec,
-} from "excalibur";
+import { Actor, Color, Engine, ImageSource, PolygonCollider, Sprite, Vector, vec } from "excalibur";
 import { DummyController } from "../controllers/dummy-controller";
 import { ShipController } from "../controllers/ship-controller";
 import { Animations, Resources } from "../resources";
@@ -14,6 +6,7 @@ import { angleDiff, linInt, radToDeg } from "../utils";
 import { Bullet } from "./bullet";
 import { CosmicBody } from "./cosmic-body";
 import { Explosion } from "./explosion";
+import { ShadowedSprite } from "../graphics/shadowed-sprite";
 
 const SHIP_COLLIDER_POINTS = [vec(18, 0), vec(-11, 15), vec(-11, -15)];
 
@@ -75,30 +68,21 @@ export class Ship extends CosmicBody {
     pos?: Vector;
     colliderScale?: number;
     controller?: ShipController;
-    shipSprite?: Sprite;
+    shipImage?: ImageSource;
     name?: string;
   }) {
-    const shipSprite =
-      parameters.shipSprite ?? Resources.Ship.Player.Default.toSprite();
+    super(10, {
+      pos: parameters.pos,
+      width: 32,
+      height: 32,
+      color: Color.Orange,
+      collider: new PolygonCollider({
+        points: SHIP_COLLIDER_POINTS.map((vector) => vector.scale(parameters.colliderScale ?? 1)),
+      }),
+      name: parameters.name || "Ship",
+    });
 
-    super(
-      10,
-      {
-        pos: parameters.pos,
-        width: 32,
-        height: 32,
-        color: Color.Orange,
-        collider: new PolygonCollider({
-          points: SHIP_COLLIDER_POINTS.map((vector) =>
-            vector.scale(parameters.colliderScale ?? 1)
-          ),
-        }),
-        name: parameters.name || "Ship",
-      },
-      shipSprite
-    );
-
-    this.#shipSprite = shipSprite;
+    this.#shipSprite = ShadowedSprite.from(parameters.shipImage ?? Resources.Ship.Player.Default);
     this.#controller = parameters?.controller ?? new DummyController();
     this.#rotateTo = this.rotation;
   }
@@ -206,33 +190,20 @@ export class Ship extends CosmicBody {
     this.#lastSpeed = speed;
 
     if (this.#accelerated) {
-      const speedMultiplier =
-        this.#speedMultiplier * (this.#boosted ? this.#boostMultiplier : 1);
+      const speedMultiplier = this.#speedMultiplier * (this.#boosted ? this.#boostMultiplier : 1);
 
       const acceleration =
         speed < this.#burstEdge
           ? linInt(speed, 0, this.#burstEdge, 0.2, 0.05)
-          : linInt(
-              speed,
-              this.#burstEdge,
-              this.#maxSpeed * speedMultiplier,
-              0.05,
-              0.01
-            );
+          : linInt(speed, this.#burstEdge, this.#maxSpeed * speedMultiplier, 0.05, 0.01);
 
       this.addMotion(acceleration * speedMultiplier, this.rotation, _delta);
 
-      const drifting = Math.abs(
-        radToDeg(angleDiff(this.rotation, this.vel.toAngle()))
-      );
+      const drifting = Math.abs(radToDeg(angleDiff(this.rotation, this.vel.toAngle())));
 
       if (drifting > 100) {
         const driftAcceleration = linInt(drifting, 45, 180, 0, 0.3);
-        this.addMotion(
-          driftAcceleration * speedMultiplier,
-          this.rotation,
-          _delta
-        );
+        this.addMotion(driftAcceleration * speedMultiplier, this.rotation, _delta);
       }
 
       this.vel = this.vel.clampMagnitude(this.#maxSpeed * speedMultiplier);
