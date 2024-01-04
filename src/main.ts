@@ -6,25 +6,25 @@ import { SpaceScene } from "./scenes/space";
 export const random = new Random(1);
 
 class Game extends Engine {
-  constructor() {
-    super({
-      width: 800,
-      height: 600,
-      displayMode: DisplayMode.FitContainer,
-      antialiasing: false,
-      // suppressPlayButton: true,
-      backgroundColor: Color.Black,
-      canvasElementId: 'game-canvas'
-    });
-  }
+    constructor() {
+        super({
+            width: 800,
+            height: 600,
+            displayMode: DisplayMode.FitContainer,
+            antialiasing: false,
+            // suppressPlayButton: true,
+            backgroundColor: Color.Black,
+            canvasElementId: "game-canvas",
+        });
+    }
 
-  initialize() {
-    this.add(SpaceScene.key, new SpaceScene());
-    this.goToScene(SpaceScene.key);
-    this.start(loader);
+    initialize() {
+        this.add(SpaceScene.key, new SpaceScene());
+        this.goToScene(SpaceScene.key);
+        this.start(loader);
 
-    return this;
-  }
+        return this;
+    }
 }
 
 export const game = new Game().initialize();
