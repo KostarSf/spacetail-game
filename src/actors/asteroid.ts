@@ -37,8 +37,8 @@ export class Asteroid extends CosmicBody {
       parameters.mass,
       {
         radius: parameters.size,
-        vel: vec(random.floating(-10, 10), random.floating(-10, 10)),
-        angularVelocity: random.floating(-Math.PI / 4, Math.PI / 4),
+        vel: vec(random.floating(-30, 30), random.floating(-30, 30)),
+        angularVelocity: random.floating(-Math.PI / 3, Math.PI / 3),
         rotation: random.floating(0, 2 * Math.PI),
         name: `Asteroid (${parameters.type})`,
       },
